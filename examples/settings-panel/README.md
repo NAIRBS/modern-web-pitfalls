@@ -10,7 +10,41 @@ skill installed, or none. Nothing else differed.
 >   with an email field and a card expiry field (MM/YY) with validation and helpful error messages,
 >   plus a Save button.
 
-## Results
+## Round 2 (after v1.1): re-run and re-grade
+
+After round 1, I improved the skill into v1.1, adding a baseline-quality checklist (see below for
+what round 1 found). I then re-ran this task with v1.1, and a **new** blind grader scored all seven
+pages: the six from round 1 plus the v1.1 page.
+
+| Skill | Page | Part A (17) | Part B (10) | Total (27) |
+|---|---|:-:|:-:|:-:|
+| **modern-web-pitfalls v1.1** | [`with-skill-v1.1.html`](with-skill-v1.1.html) | **17** | **10** | **27** |
+| modern-web-pitfalls v1.0 | [`with-skill.html`](with-skill.html) | 17 | 10* | 27* |
+| Modern Web Guidance | [`modern-web-guidance.html`](modern-web-guidance.html) | 14 | 10 | 24 |
+| Web Quality Skills | [`web-quality-skills.html`](web-quality-skills.html) | 10 | 10 | 20 |
+| *No skill* | [`without-skill.html`](without-skill.html) | 6 | 9 | 15 |
+| Vercel web-design-guidelines | [`vercel-web-design-guidelines.html`](vercel-web-design-guidelines.html) | 7 | 8 | 15 |
+| frontend-design | [`frontend-design.html`](frontend-design.html) | 5 | 8 | 13 |
+
+\* The round-2 grader treated faint input borders as a note, not a failure. Measured against WCAG
+1.4.11, v1.0's borders are **1.6:1 / 2.2:1** (light/dark), which fails the 3:1 minimum. v1.1's are
+**4.4–4.8:1 / 5.3–5.9:1**, which passes. Under the strict reading, v1.0 scores 26 and v1.1 scores 27.
+
+**Grader agreement:** the two blind graders gave **identical Part A scores** to all six round-1
+pages. Part B differed by at most one point per page, almost always on how strictly to read border
+contrast. Full verdicts: [`grading/results-round2.json`](grading/results-round2.json).
+
+v1.1 also shows visible changes: errors get an icon and "Error:" text, required fields are marked,
+there are specific messages for each failure, focus moves to the first invalid field, and the
+selected theme gets a ✓ as well as a colour change.
+
+| v1.1 light | v1.1 dark |
+|---|---|
+| ![](../../docs/screenshots/with-skill-v1.1-light.png) | ![](../../docs/screenshots/with-skill-v1.1-dark.png) |
+
+For a test on a task that **no skill was tuned on**, see the [product-page holdout](../product-page/).
+
+## Round 1 results
 
 | Skill | Page | Part A: modern platform (17) | Part B: quality basics (10) | Total (27) |
 |---|---|:-:|:-:|:-:|

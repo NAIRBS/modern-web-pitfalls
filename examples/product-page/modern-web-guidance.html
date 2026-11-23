@@ -1,0 +1,680 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aria One Headphones</title>
+<meta name="description" content="Aria One wireless headphones, $249.">
+<!-- Headings above the fold use Brand Sans: preload it. Font preloads always need crossorigin, even same-origin. -->
+<link rel="preload" href="/fonts/brand-sans.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+  @font-face {
+    font-family: "Brand Sans";
+    src: url("/fonts/brand-sans.woff2") format("woff2");
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  :root {
+    --bg: #fbfaf7;
+    --surface: #ffffff;
+    --ink: #1b1b1f;
+    --muted: #55565e;
+    --line: #d4d2cc;
+    --accent: #3b3bd1;
+    --accent-ink: #ffffff;
+    --star: #a15c00;
+    --radius: 14px;
+    --heading-font: "Brand Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --body-font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--body-font);
+    line-height: 1.5;
+  }
+
+  h1, h2, h3 {
+    font-family: var(--heading-font);
+    /* Scale the system fallback to Brand Sans's x-height so the swap does not shift layout. */
+    font-size-adjust: from-font;
+    line-height: 1.15;
+    margin: 0 0 .5em;
+  }
+  h1 { font-size: clamp(2.5rem, 1.5rem + 5vw, 5rem); letter-spacing: -.02em; }
+  h2 { font-size: clamp(1.5rem, 1.1rem + 2vw, 2.5rem); }
+
+  .wrap { width: min(100% - 2rem, 64rem); margin-inline: auto; }
+  section { padding-block: 3rem; }
+
+  button, select { font: inherit; }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    padding: .75rem 1.5rem;
+    border: 2px solid var(--accent);
+    border-radius: 999px;
+    background: var(--accent);
+    color: var(--accent-ink);
+    font-weight: 600;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+  .btn.secondary { background: transparent; color: var(--accent); }
+  :is(button, select, [tabindex="0"]):focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 3px;
+  }
+
+  .visually-hidden {
+    position: absolute !important;
+    width: 1px; height: 1px;
+    padding: 0; margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* ---------- Hero: fills the phone screen ---------- */
+  .hero {
+    min-height: 100vh;   /* fallback */
+    min-height: 100dvh;  /* tracks mobile browser UI showing/hiding */
+    display: grid;
+    align-content: center;
+    gap: 1.5rem;
+    padding-block: 2rem;
+  }
+  .hero-art { width: min(100%, 22rem); height: auto; aspect-ratio: 1; justify-self: center; }
+  .price { font-size: 1.5rem; font-weight: 600; margin: 0 0 1.25rem; }
+  .tagline { color: var(--muted); margin: 0 0 .75rem; font-size: 1.125rem; }
+  @media (min-width: 48rem) {
+    .hero { grid-template-columns: 1fr 1fr; align-items: center; }
+  }
+
+  /* ---------- Carousel ---------- */
+  .carousel { position: relative; }
+  .carousel-viewport { position: relative; }
+  .carousel-track {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    /* only the scrolling axis, so vertical page scroll still works over the carousel */
+    overscroll-behavior-x: contain;
+    touch-action: manipulation;
+    border-radius: var(--radius);
+    scrollbar-width: none;
+  }
+  .carousel-track::-webkit-scrollbar { display: none; }
+  .carousel-track > * {
+    flex: 0 0 100%;
+    scroll-snap-align: center;
+    margin: 0;
+  }
+  .carousel-track svg { display: block; width: 100%; height: auto; aspect-ratio: 4 / 3; border-radius: var(--radius); }
+  .carousel-track figcaption { padding: .5rem .25rem 0; color: var(--muted); }
+
+  /* Looping without cloning: park an end slide beside the current one with `order`.
+     --children-count is only set by script where sibling-count() is unsupported. */
+  .carousel-track > :first-child {
+    order: clamp(0, var(--current) - (var(--children-count, sibling-count()) - 3), 1);
+  }
+  .carousel-track > :last-child {
+    order: calc(-1 * clamp(0, 2 - var(--current), 1));
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .carousel-track { scroll-behavior: smooth; }
+  }
+
+  .carousel-controls {
+    position: absolute;
+    inset: 0 0 auto 0;
+    aspect-ratio: 4 / 3;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-inline: .5rem;
+    z-index: 1;
+    pointer-events: none;
+  }
+  .carousel-controls button {
+    pointer-events: auto;
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    border: 2px solid var(--ink);
+    background: rgb(255 255 255 / .92);
+    color: var(--ink);
+    cursor: pointer;
+    touch-action: manipulation;
+    display: grid;
+    place-items: center;
+  }
+  .carousel-controls svg { width: 22px; height: 22px; }
+
+  .carousel-markers {
+    display: flex;
+    justify-content: center;
+    gap: .25rem;
+    margin-top: .75rem;
+  }
+  .carousel-markers button {
+    /* 12px visible dot, 28px target via transparent border */
+    width: 28px; height: 28px;
+    padding: 0;
+    border: 8px solid transparent;
+    background: var(--muted);
+    background-clip: padding-box;
+    border-radius: 50%;
+    cursor: pointer;
+    touch-action: manipulation;
+    transition: background-color .2s;
+  }
+  /* active state is not conveyed by color alone: the dot becomes a wider pill */
+  .carousel-markers button[aria-current="true"] {
+    width: 44px;
+    border-radius: 999px;
+    background-color: var(--accent);
+  }
+
+  /* ---------- Video ---------- */
+  .video video {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    background: #111;
+    border-radius: var(--radius);
+  }
+
+  /* ---------- Reviews ---------- */
+  .reviews-head {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: end;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+  .filter { display: grid; gap: .25rem; }
+  .filter select {
+    min-height: 44px;
+    padding: .5rem .75rem;
+    border: 2px solid var(--line);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--ink);
+  }
+  .review-count { color: var(--muted); margin: 0 0 1rem; }
+  .review-list { list-style: none; margin: 0; padding: 0; display: grid; gap: .75rem; }
+  .review {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+    /* reviews are below the fold: skip rendering work until they scroll near */
+    content-visibility: auto;
+    contain-intrinsic-size: auto none auto 120px;
+  }
+  .review[hidden] { display: none; }
+  .review h3 { font-size: 1.0625rem; margin: 0; }
+  .review p { margin: .35rem 0 0; }
+  .stars { color: var(--star); letter-spacing: .1em; font-size: 1.05rem; }
+
+  /* ---------- Guidelines popover (non-modal, light dismiss) ---------- */
+  .guidelines-panel {
+    width: min(100% - 2rem, 24rem);
+    padding: 1.25rem 1.25rem 1rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--ink);
+    box-shadow: 0 12px 40px rgb(0 0 0 / .18);
+  }
+  .guidelines-panel h2 { font-size: 1.25rem; }
+  .guidelines-panel ul { padding-left: 1.2rem; margin: 0 0 1rem; }
+  /* Manual fallback for browsers without the Popover API */
+  .no-popover .guidelines-panel {
+    position: fixed;
+    inset: auto 0 1rem 0;
+    margin-inline: auto;
+    z-index: 10;
+  }
+  .no-popover .guidelines-panel[hidden] { display: none; }
+
+  .cart-status { min-height: 1.5em; color: var(--muted); margin-top: .75rem; }
+  footer { padding-block: 2rem; color: var(--muted); border-top: 1px solid var(--line); }
+</style>
+</head>
+<body>
+
+<main>
+  <!-- ================= Hero ================= -->
+  <header class="hero wrap">
+    <div>
+      <p class="tagline">Wireless noise-cancelling headphones</p>
+      <h1>Aria One</h1>
+      <p class="price"><span class="visually-hidden">Price: </span>$249</p>
+      <button type="button" class="btn" id="add-to-cart">Add to cart</button>
+      <p class="cart-status" id="cart-status" role="status"></p>
+    </div>
+    <svg class="hero-art" viewBox="0 0 400 400" role="img" aria-label="Aria One headphones in graphite">
+      <rect width="400" height="400" rx="32" fill="#e9e7f7"/>
+      <path d="M90 230 C90 120 310 120 310 230" fill="none" stroke="#2a2a33" stroke-width="22" stroke-linecap="round"/>
+      <rect x="62" y="210" width="70" height="110" rx="30" fill="#2a2a33"/>
+      <rect x="268" y="210" width="70" height="110" rx="30" fill="#2a2a33"/>
+      <rect x="78" y="226" width="38" height="78" rx="18" fill="#3b3bd1"/>
+      <rect x="284" y="226" width="38" height="78" rx="18" fill="#3b3bd1"/>
+    </svg>
+  </header>
+
+  <!-- ================= Carousel ================= -->
+  <section class="wrap" aria-labelledby="gallery-title">
+    <h2 id="gallery-title">Gallery</h2>
+    <div class="carousel" aria-roledescription="carousel" aria-label="Aria One product images" role="region">
+      <div class="carousel-viewport">
+        <!-- Previous/Next sit before the track in DOM order -->
+        <div class="carousel-controls">
+          <button type="button" data-direction="previous" aria-label="Previous image">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <button type="button" data-direction="next" aria-label="Next image">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+
+        <div class="carousel-track" tabindex="0" role="group" aria-label="Images">
+          <figure role="group" aria-roledescription="slide" aria-label="1 of 5" data-marker-name="Go to image 1: front view">
+            <svg viewBox="0 0 400 300" role="img" aria-label="Front view of Aria One">
+              <rect width="400" height="300" fill="#e9e7f7"/>
+              <path d="M120 180 C120 80 280 80 280 180" fill="none" stroke="#2a2a33" stroke-width="16" stroke-linecap="round"/>
+              <rect x="98" y="165" width="50" height="80" rx="22" fill="#2a2a33"/>
+              <rect x="252" y="165" width="50" height="80" rx="22" fill="#2a2a33"/>
+            </svg>
+            <figcaption>Front view</figcaption>
+          </figure>
+          <figure role="group" aria-roledescription="slide" aria-label="2 of 5" data-marker-name="Go to image 2: side profile">
+            <svg viewBox="0 0 400 300" role="img" aria-label="Side profile of Aria One">
+              <rect width="400" height="300" fill="#f5e8dc"/>
+              <path d="M150 190 C150 70 260 70 260 140" fill="none" stroke="#2a2a33" stroke-width="16" stroke-linecap="round"/>
+              <ellipse cx="200" cy="200" rx="60" ry="70" fill="#2a2a33"/>
+              <ellipse cx="200" cy="200" rx="34" ry="44" fill="#c9783a"/>
+            </svg>
+            <figcaption>Side profile</figcaption>
+          </figure>
+          <figure role="group" aria-roledescription="slide" aria-label="3 of 5" data-marker-name="Go to image 3: folded in case">
+            <svg viewBox="0 0 400 300" role="img" aria-label="Aria One folded inside its travel case">
+              <rect width="400" height="300" fill="#dff0ea"/>
+              <ellipse cx="200" cy="160" rx="140" ry="90" fill="#2f5d50"/>
+              <ellipse cx="200" cy="160" rx="110" ry="66" fill="#1e3d35"/>
+              <circle cx="165" cy="160" r="30" fill="#2a2a33"/>
+              <circle cx="235" cy="160" r="30" fill="#2a2a33"/>
+            </svg>
+            <figcaption>Folded in the travel case</figcaption>
+          </figure>
+          <figure role="group" aria-roledescription="slide" aria-label="4 of 5" data-marker-name="Go to image 4: ear cushion detail">
+            <svg viewBox="0 0 400 300" role="img" aria-label="Close-up of the memory foam ear cushion">
+              <rect width="400" height="300" fill="#ece4f5"/>
+              <circle cx="200" cy="150" r="110" fill="#2a2a33"/>
+              <circle cx="200" cy="150" r="80" fill="#4a4a58"/>
+              <circle cx="200" cy="150" r="46" fill="#3b3bd1"/>
+            </svg>
+            <figcaption>Memory foam ear cushions</figcaption>
+          </figure>
+          <figure role="group" aria-roledescription="slide" aria-label="5 of 5" data-marker-name="Go to image 5: colour options">
+            <svg viewBox="0 0 400 300" role="img" aria-label="Aria One in graphite, sand and sage">
+              <rect width="400" height="300" fill="#f4f2ec"/>
+              <circle cx="110" cy="150" r="54" fill="#2a2a33"/>
+              <circle cx="200" cy="150" r="54" fill="#d8c3a5"/>
+              <circle cx="290" cy="150" r="54" fill="#8fae9a"/>
+            </svg>
+            <figcaption>Graphite, Sand and Sage</figcaption>
+          </figure>
+        </div>
+      </div>
+
+      <p class="visually-hidden" role="status" aria-live="polite" id="carousel-status"></p>
+      <nav class="carousel-markers" aria-label="Choose an image"></nav>
+    </div>
+  </section>
+
+  <!-- ================= Video ================= -->
+  <section class="wrap video" aria-labelledby="video-title">
+    <h2 id="video-title">See it in action</h2>
+    <!-- Below the fold: lazy, with integer width/height so the unloaded box intersects and does not shift. -->
+    <video controls loading="lazy" preload="metadata" playsinline width="1280" height="720"
+           aria-label="Aria One product demo">
+      <source src="/media/demo.mp4" type="video/mp4">
+      Your browser can't play this video. <a href="/media/demo.mp4">Download the demo</a>.
+    </video>
+  </section>
+
+  <!-- ================= Reviews ================= -->
+  <section class="wrap" aria-labelledby="reviews-title">
+    <div class="reviews-head">
+      <div>
+        <h2 id="reviews-title">Reviews</h2>
+        <button type="button" class="btn secondary" id="guidelines-btn"
+                popovertarget="guidelines" aria-controls="guidelines">Review guidelines</button>
+      </div>
+      <div class="filter">
+        <label for="rating-filter">Filter by rating</label>
+        <select id="rating-filter">
+          <option value="all">All ratings</option>
+          <option value="5">5 stars</option>
+          <option value="4">4 stars</option>
+          <option value="3">3 stars</option>
+          <option value="2">2 stars</option>
+          <option value="1">1 star</option>
+        </select>
+      </div>
+    </div>
+    <p class="review-count" id="review-count" role="status" aria-live="polite"></p>
+    <ul class="review-list" id="review-list"></ul>
+  </section>
+</main>
+
+<!-- popover="auto": non-modal, closes on outside click and Esc natively -->
+<div id="guidelines" class="guidelines-panel" popover role="dialog" aria-labelledby="guidelines-title">
+  <h2 id="guidelines-title">Review guidelines</h2>
+  <ul>
+    <li>Describe your own experience with Aria One.</li>
+    <li>Keep it respectful; no personal details.</li>
+    <li>Focus on sound, comfort, battery and build.</li>
+  </ul>
+  <button type="button" class="btn secondary" id="guidelines-close"
+          popovertarget="guidelines" popovertargetaction="hide">Close</button>
+</div>
+
+<footer>
+  <div class="wrap">Aria One is a fictional product.</div>
+</footer>
+
+<script type="module">
+/* ============================================================
+   Add to cart
+   ============================================================ */
+{
+  const btn = document.getElementById('add-to-cart');
+  const status = document.getElementById('cart-status');
+  let qty = 0;
+  btn.addEventListener('click', () => {
+    qty += 1;
+    status.textContent = `Added to cart (${qty} in cart).`;
+  });
+}
+
+/* ============================================================
+   Carousel: native scroll snap + buttons, markers, looping
+   ============================================================ */
+{
+  const root = document.querySelector('.carousel');
+  const track = root.querySelector('.carousel-track');
+  const slides = [...track.children];
+  const status = root.querySelector('#carousel-status');
+  const markerNav = root.querySelector('.carousel-markers');
+  const prevBtn = root.querySelector('[data-direction="previous"]');
+  const nextBtn = root.querySelector('[data-direction="next"]');
+  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
+
+  if (!CSS.supports('order: sibling-count()')) {
+    track.style.setProperty('--children-count', slides.length);
+  }
+
+  const markers = slides.map((slide, i) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.setAttribute('aria-label', slide.dataset.markerName);
+    b.addEventListener('click', () => goToMarker(i));
+    markerNav.append(b);
+    return b;
+  });
+
+  let pendingTarget = null;    // slide a click is scrolling to
+  let requestedFrom = null;    // scrollLeft when that scroll was requested
+  let queuedStep = 0;          // prev/next held during a marker trip
+  let settledIndex = -1;
+  let liveIndex = -1;
+
+  const behavior = () => (reduceMotion.matches ? 'auto' : 'smooth');
+  const center = (el) => { const r = el.getBoundingClientRect(); return r.left + r.width / 2; };
+  const visualOrder = () => [...slides].sort((a, b) => a.offsetLeft - b.offsetLeft);
+
+  function nearestSlide() {
+    const c = center(track);
+    let best = slides[0], dist = Infinity;
+    for (const s of slides) {
+      const d = Math.abs(center(s) - c);
+      if (d < dist) { dist = d; best = s; }
+    }
+    return best;
+  }
+
+  function setActiveMarker(index) {
+    if (index === liveIndex) return;
+    liveIndex = index;
+    markers.forEach((m, i) => {
+      if (i === index) m.setAttribute('aria-current', 'true');
+      else m.removeAttribute('aria-current');
+    });
+  }
+
+  function scrollToSlide(slide) {
+    pendingTarget = slide;
+    requestedFrom = track.scrollLeft;
+    setActiveMarker(slides.indexOf(slide));
+    track.scrollBy({ left: center(slide) - center(track), behavior: behavior() });
+  }
+
+  // Change --current (parking) without visible movement: measure, reorder, compensate instantly.
+  function setCurrent(value, { lock }) {
+    const anchor = nearestSlide();
+    const before = center(anchor);
+    track.style.scrollSnapType = 'none';
+    if (lock) track.style.overflowX = 'hidden';
+    track.style.setProperty('--current', value);
+    const delta = center(anchor) - before;
+    if (delta) track.scrollBy({ left: delta, behavior: 'instant' });
+    track.style.scrollSnapType = '';
+    if (lock) requestAnimationFrame(() => requestAnimationFrame(() => { track.style.overflowX = ''; }));
+  }
+
+  function step(dir) {
+    const base = pendingTarget ?? nearestSlide();
+    const order = visualOrder();
+    const target = order[order.indexOf(base) + dir];
+    if (!target) { queuedStep = dir; return; } // slides in DOM order during a marker trip
+    scrollToSlide(target);
+  }
+
+  function goToMarker(i) {
+    const target = slides[i];
+    if (target === (pendingTarget ?? nearestSlide())) return;
+    queuedStep = 0;
+    setCurrent('initial', { lock: false }); // DOM order so the trip goes in sequence order
+    scrollToSlide(target);
+  }
+
+  prevBtn.addEventListener('click', () => step(-1));
+  nextBtn.addEventListener('click', () => step(1));
+
+  // A user gesture replaces any scripted target.
+  for (const type of ['pointerdown', 'wheel', 'keydown']) {
+    track.addEventListener(type, () => { pendingTarget = null; queuedStep = 0; }, { passive: true });
+  }
+
+  // Live marker updates, one per frame, skipped while a click target is pending.
+  let ticking = false;
+  track.addEventListener('scroll', () => {
+    if (pendingTarget || ticking) return;
+    ticking = true;
+    requestAnimationFrame(() => {
+      ticking = false;
+      setActiveMarker(slides.indexOf(nearestSlide()));
+    });
+  }, { passive: true });
+
+  function settle({ announce = true } = {}) {
+    // A settle at the exact position a new scroll was requested from belongs to an earlier scroll.
+    if (pendingTarget && track.scrollLeft === requestedFrom) return;
+    const current = nearestSlide();
+    if (pendingTarget && current !== pendingTarget) return; // the next scroll is still in flight
+    pendingTarget = null;
+    const index = slides.indexOf(current);
+    const replay = queuedStep;
+    queuedStep = 0;
+    setCurrent(index, { lock: !replay });
+    setActiveMarker(index);
+    if (announce && index !== settledIndex) {
+      status.textContent = `Image ${index + 1} of ${slides.length}`;
+    }
+    settledIndex = index;
+    if (replay) step(replay);
+  }
+
+  if ('onscrollend' in window) {
+    track.addEventListener('scrollend', () => settle());
+  } else {
+    let t;
+    track.addEventListener('scroll', () => {
+      clearTimeout(t);
+      t = setTimeout(() => settle(), 120);
+    }, { passive: true });
+  }
+
+  // Initial sync: silent.
+  settle({ announce: false });
+}
+
+/* ============================================================
+   Video: lazy-load fallback where loading="lazy" on media is unsupported
+   ============================================================ */
+if (!Object.hasOwn(HTMLMediaElement.prototype, 'loading')) {
+  const io = new IntersectionObserver((entries, obs) => {
+    for (const e of entries) {
+      if (!e.isIntersecting) continue;
+      const v = e.target;
+      if (v.dataset.preload) { v.preload = v.dataset.preload; delete v.dataset.preload; }
+      obs.unobserve(v);
+    }
+  }, { rootMargin: '200px 0px' });
+  for (const v of document.querySelectorAll('video[loading="lazy"]')) {
+    if (v.getAttribute('preload') && v.getAttribute('preload') !== 'none') {
+      v.dataset.preload = v.getAttribute('preload');
+    }
+    v.preload = 'none';
+    io.observe(v);
+  }
+}
+
+/* ============================================================
+   Reviews: 300 generated reviews + rating filter
+   ============================================================ */
+{
+  const list = document.getElementById('review-list');
+  const count = document.getElementById('review-count');
+  const filter = document.getElementById('rating-filter');
+
+  // Deterministic PRNG so the generated reviews are stable between loads.
+  let seed = 20261123;
+  const rand = () => ((seed = (seed * 1664525 + 1013904223) >>> 0) / 2 ** 32);
+  const pick = (arr) => arr[Math.floor(rand() * arr.length)];
+
+  const first = ['Maya', 'Leo', 'Priya', 'Sam', 'Noah', 'Aiko', 'Omar', 'Elena', 'Jonas', 'Chloe', 'Ravi', 'Zoe', 'Diego', 'Hana', 'Felix', 'Amara', 'Theo', 'Ines', 'Kai', 'Lucia'];
+  const last = ['K.', 'M.', 'R.', 'S.', 'T.', 'L.', 'B.', 'W.', 'D.', 'P.'];
+  const byRating = {
+    5: ['Best headphones I have owned. The noise cancelling is superb.', 'Comfortable for whole flights and the battery never quits.', 'Rich, balanced sound and the case is perfect for travel.'],
+    4: ['Great sound and comfort; the app could be better.', 'Really good ANC, slightly tight at first but it loosened up.', 'Excellent value at this price, minor touch control quirks.'],
+    3: ['Decent sound, but they get warm after an hour or two.', 'Fine for commuting, call quality is only average.', 'Good build, though I expected more bass.'],
+    2: ['Bluetooth drops now and then with my laptop.', 'Ear cushions press on my glasses; not for me.', 'Sound is okay but the touch controls misfire a lot.'],
+    1: ['Left cup stopped charging after two weeks.', 'Returned them; the hiss with ANC on was too distracting.', 'Did not fit my head at all and the support was slow.'],
+  };
+  const weights = [5, 5, 5, 5, 4, 4, 4, 3, 3, 2, 1];
+
+  const reviews = Array.from({ length: 300 }, (_, i) => {
+    const rating = pick(weights);
+    return { id: i, name: `${pick(first)} ${pick(last)}`, rating, text: pick(byRating[rating]) };
+  });
+
+  // Build once; filtering only toggles `hidden`, which keeps the interaction cheap.
+  const frag = document.createDocumentFragment();
+  const items = reviews.map((r) => {
+    const li = document.createElement('li');
+    li.className = 'review';
+    li.dataset.rating = r.rating;
+
+    const h = document.createElement('h3');
+    h.textContent = r.name;
+
+    const stars = document.createElement('p');
+    stars.className = 'stars';
+    stars.setAttribute('role', 'img');
+    stars.setAttribute('aria-label', `${r.rating} out of 5 stars`);
+    stars.textContent = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
+
+    const p = document.createElement('p');
+    p.textContent = r.text; // textContent: never parse generated text as HTML
+
+    li.append(h, stars, p);
+    frag.append(li);
+    return li;
+  });
+  list.append(frag);
+
+  function applyFilter() {
+    const value = filter.value;
+    let shown = 0;
+    for (const li of items) {
+      const match = value === 'all' || li.dataset.rating === value;
+      li.hidden = !match;
+      if (match) shown++;
+    }
+    const label = value === 'all' ? 'all ratings' : `${value} star${value === '1' ? '' : 's'}`;
+    count.textContent = `Showing ${shown} of ${items.length} reviews (${label}).`;
+  }
+
+  filter.addEventListener('change', applyFilter);
+  applyFilter();
+}
+
+/* ============================================================
+   Review guidelines popover: manual fallback without the Popover API
+   ============================================================ */
+if (!Object.hasOwn(HTMLElement.prototype, 'popover')) {
+  document.documentElement.classList.add('no-popover');
+  const panel = document.getElementById('guidelines');
+  const openBtn = document.getElementById('guidelines-btn');
+  const closeBtn = document.getElementById('guidelines-close');
+  panel.removeAttribute('popover');
+  panel.hidden = true;
+  openBtn.setAttribute('aria-expanded', 'false');
+
+  const setOpen = (open, { restoreFocus = false } = {}) => {
+    panel.hidden = !open;
+    openBtn.setAttribute('aria-expanded', String(open));
+    if (!open && restoreFocus) openBtn.focus();
+  };
+
+  openBtn.addEventListener('click', () => setOpen(panel.hidden));
+  closeBtn.addEventListener('click', () => setOpen(false, { restoreFocus: true }));
+  document.addEventListener('click', (e) => {
+    if (panel.hidden || panel.contains(e.target) || openBtn.contains(e.target)) return;
+    setOpen(false);
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !panel.hidden) setOpen(false, { restoreFocus: panel.contains(document.activeElement) });
+  });
+}
+</script>
+</body>
+</html>

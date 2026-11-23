@@ -1,0 +1,674 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<!--
+  Hash-based CSP for this static page. The hashes below are computed from the exact bytes of the
+  single inline style and script blocks; recompute them if either block changes.
+  When served over HTTP, prefer sending the same policy as a header and add
+  `frame-ancestors 'none'` (not allowed in a meta tag).
+-->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-y9wey3uaLxXXuJBljeRwpkKZaDSkGcNpPfrbJEiyq0A='; style-src 'sha256-qiNmVSDI+Ng3Q4MVQKm7/QVr8whBe+vjJV7pabDi/2Q='; font-src 'self'; media-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'self'; object-src 'none'; require-trusted-types-for 'script'">
+<title>Aria One Headphones – $249</title>
+<meta name="description" content="Aria One wireless headphones: immersive sound, all-day comfort. $249.">
+<link rel="preload" href="/fonts/brand-sans.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+@font-face {
+  font-family: "Brand Sans";
+  src: url("/fonts/brand-sans.woff2") format("woff2");
+  font-weight: 400 800;
+  font-display: swap;
+}
+
+:root {
+  color-scheme: light dark;
+  --surface:      light-dark(#ffffff, #141418);
+  --surface-2:    light-dark(#f3f4f7, #1f2027);
+  --text:         light-dark(#16171b, #ececf0);   /* ~17:1 / ~15:1 */
+  --muted:        light-dark(#575b64, #a7aab3);   /* >= 4.5:1 on both surfaces */
+  --control-edge: light-dark(#6f737c, #8d919a);   /* >= 3:1 boundary on both surfaces */
+  --accent:       light-dark(#1d4ed8, #9db8ff);   /* button fill; >= 3:1 vs surface */
+  --on-accent:    light-dark(#ffffff, #0b1020);   /* >= 4.5:1 on --accent */
+  --focus:        light-dark(#1d4ed8, #9db8ff);   /* focus ring, >= 3:1 vs surfaces */
+  --star:         light-dark(#8a5a00, #ffc861);   /* >= 4.5:1 text colour */
+  --success:      light-dark(#146c2e, #7ee2a0);
+  --radius: 14px;
+  --heading-font: "Brand Sans", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+@media (prefers-reduced-motion: no-preference) {
+  html { scroll-behavior: smooth; }
+}
+
+body {
+  margin: 0;
+  background: var(--surface);
+  color: var(--text);
+  font: 1rem/1.55 system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+h1, h2, h3 {
+  font-family: var(--heading-font);
+  /* Keep the x-height of the system fallback close to Brand Sans so the swap doesn't reflow.
+     0.52 should be replaced with Brand Sans's measured x-height / em ratio. */
+  font-size-adjust: 0.52;
+  line-height: 1.15;
+  margin: 0 0 .5em;
+}
+
+a { color: var(--accent); }
+
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0; border: 0;
+  overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.wrap {
+  width: min(100% - 32px, 1080px);
+  margin-inline: auto;
+}
+
+section { padding-block: 56px; }
+
+button, select { font: inherit; touch-action: manipulation; }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5em;
+  min-height: 44px;
+  min-width: 44px;
+  padding: 10px 22px;
+  border-radius: 999px;
+  border: 2px solid var(--accent);
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 650;
+  cursor: pointer;
+}
+.btn:hover { filter: brightness(1.08); }
+.btn.secondary {
+  background: transparent;
+  color: var(--text);
+  border-color: var(--control-edge);
+}
+
+/* ---------- Hero ---------- */
+.hero {
+  min-height: 100svh;            /* fills the phone screen without jumping with toolbars */
+  display: grid;
+  align-content: center;
+  padding-block: 32px;
+  background: var(--surface-2);
+}
+.hero .wrap {
+  display: grid;
+  gap: 24px;
+  align-items: center;
+}
+@media (min-width: 760px) {
+  .hero .wrap { grid-template-columns: 1.1fr 1fr; }
+}
+.eyebrow {
+  margin: 0 0 8px;
+  color: var(--muted);
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  font-size: .85rem;
+}
+.hero h1 { font-size: clamp(2.6rem, 10vw, 4.5rem); }
+.hero .tagline { color: var(--muted); font-size: 1.15rem; margin: 0 0 20px; max-width: 34ch; }
+.price { font-size: 2rem; font-weight: 700; margin: 0 0 20px; }
+.hero-art svg { width: 100%; height: auto; display: block; max-width: 420px; margin-inline: auto; }
+.cart-status {
+  min-height: 1.6em;             /* reserved so the message doesn't shift layout */
+  margin: 12px 0 0;
+  color: var(--success);
+  font-weight: 600;
+}
+
+/* ---------- Carousel ---------- */
+.carousel { position: relative; }
+.track {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;  /* over-swipe doesn't trigger back/forward */
+  scrollbar-width: none;
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  margin: 0; padding: 0;
+  list-style: none;
+}
+.track::-webkit-scrollbar { display: none; }
+.slide {
+  flex: 0 0 100%;
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+}
+.slide svg { display: block; width: 100%; height: auto; }   /* width/height attrs reserve 16:10 */
+.carousel-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 14px;
+}
+.nav-btn {
+  width: 44px; height: 44px;
+  padding: 0;
+  border-radius: 50%;
+  border: 2px solid var(--control-edge);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  display: grid; place-items: center;
+}
+.nav-btn svg { width: 20px; height: 20px; }
+.dots { display: flex; gap: 4px; }
+.dot {
+  width: 32px; height: 32px;        /* >= 24px target, visual dot inside */
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  display: grid; place-items: center;
+  border-radius: 50%;
+}
+.dot::before {
+  content: "";
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  border: 2px solid var(--control-edge);
+  background: transparent;
+  transition: background-color .2s, border-color .2s;
+}
+/* Selected: filled AND larger (shape/size cue, not colour alone) */
+.dot[aria-current="true"]::before {
+  width: 16px; height: 16px;
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.slide-status { color: var(--muted); margin: 8px 0 0; text-align: center; }
+
+/* ---------- Video ---------- */
+video {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;                    /* width/height attributes give the 16:9 ratio up front */
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: var(--radius);
+  background: #000;
+}
+
+/* ---------- Reviews ---------- */
+.reviews-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.filter label { display: block; font-weight: 600; margin-bottom: 4px; }
+.filter select {
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid var(--control-edge);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--text);
+}
+.review-count { color: var(--muted); margin: 0 0 16px; min-height: 1.6em; }
+.review-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.review {
+  content-visibility: auto;        /* skip rendering work for off-screen reviews */
+  contain-intrinsic-size: auto 128px;
+  padding: 16px;
+  border: 1px solid var(--control-edge);
+  border-radius: 12px;
+  background: var(--surface);
+}
+.review-top { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; margin-bottom: 6px; }
+.reviewer { font-weight: 700; margin: 0; }
+.stars { color: var(--star); letter-spacing: 2px; margin: 0; }
+.stars .off { color: var(--muted); }
+.review-text { margin: 0; }
+
+/* ---------- Guidelines popover ---------- */
+.guidelines {
+  width: min(340px, calc(100vw - 32px));
+  margin: auto;
+  padding: 18px 20px;
+  border: 1px solid var(--control-edge);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 10px 30px rgb(0 0 0 / .25);
+  overscroll-behavior: contain;
+  max-height: 80dvh;
+  overflow: auto;
+}
+.guidelines h3 { font-size: 1.15rem; }
+.guidelines ul { padding-left: 1.2em; margin: 0 0 12px; }
+.guidelines .close { min-height: 44px; }
+@supports (anchor-name: --a) {
+  #guidelines-btn { anchor-name: --guidelines; }
+  .guidelines:popover-open {
+    position-anchor: --guidelines;
+    margin: 0;
+    inset: auto;
+    top: anchor(bottom);
+    left: anchor(left);
+    translate: 0 8px;
+    position-try-fallbacks: flip-block, flip-inline;
+  }
+}
+/* Fallback when the popover attribute is unsupported */
+.guidelines.fallback { position: absolute; z-index: 10; }
+.guidelines.fallback[hidden] { display: none; }
+
+/* Enter/exit animation in pure CSS */
+.guidelines[popover] {
+  opacity: 0;
+  transition: opacity .18s, overlay .18s allow-discrete, display .18s allow-discrete;
+}
+.guidelines[popover]:popover-open {
+  opacity: 1;
+  @starting-style { opacity: 0; }
+}
+
+/* ---------- Footer ---------- */
+footer { padding-block: 32px; color: var(--muted); border-top: 1px solid var(--control-edge); }
+
+/* ---------- Forced colours ---------- */
+@media (forced-colors: active) {
+  .dot[aria-current="true"]::before { background: Highlight; border-color: Highlight; forced-color-adjust: none; }
+  .dot::before { border-color: ButtonText; }
+  .btn, .nav-btn { border-color: ButtonText; }
+  .stars .off { color: GrayText; }
+}
+
+@media (prefers-contrast: more) {
+  :root { --control-edge: light-dark(#3d4047, #c4c7ce); --muted: light-dark(#3d4047, #c4c7ce); }
+}
+</style>
+</head>
+<body>
+<main id="main">
+
+  <!-- Hero -->
+  <section class="hero" aria-labelledby="product-name">
+    <div class="wrap">
+      <div>
+        <p class="eyebrow">Wireless noise-cancelling headphones</p>
+        <h1 id="product-name">Aria One</h1>
+        <p class="tagline">Studio-grade sound, adaptive noise cancelling and 40 hours of battery in a frame you'll forget you're wearing.</p>
+        <p class="price"><span class="visually-hidden">Price: </span>$249</p>
+        <button type="button" class="btn" id="add-to-cart">
+          <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.6 12.2a2 2 0 0 0 2 1.6h8a2 2 0 0 0 2-1.5L22 8H6"/></svg>
+          Add to cart
+        </button>
+        <p class="cart-status" id="cart-status" role="status" aria-live="polite"></p>
+      </div>
+      <div class="hero-art">
+        <svg role="img" aria-label="Aria One headphones in midnight blue" width="420" height="380" viewBox="0 0 420 380">
+          <path d="M70 230 C70 90 350 90 350 230" fill="none" stroke="#2b3a67" stroke-width="22" stroke-linecap="round"/>
+          <rect x="40" y="210" width="80" height="130" rx="34" fill="#1d4ed8"/>
+          <rect x="300" y="210" width="80" height="130" rx="34" fill="#1d4ed8"/>
+          <rect x="58" y="228" width="44" height="94" rx="20" fill="#9db8ff"/>
+          <rect x="318" y="228" width="44" height="94" rx="20" fill="#9db8ff"/>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- Carousel -->
+  <section aria-labelledby="gallery-title">
+    <div class="wrap">
+      <h2 id="gallery-title">Gallery</h2>
+      <div class="carousel" role="region" aria-roledescription="carousel" aria-labelledby="gallery-title">
+        <ul class="track" id="track" tabindex="0" aria-label="Product images, swipe or scroll horizontally">
+          <li class="slide" id="slide-1" role="group" aria-roledescription="slide" aria-label="1 of 5">
+            <svg role="img" aria-label="Front view, midnight blue" width="800" height="500" viewBox="0 0 800 500">
+              <rect width="800" height="500" fill="#dbe4ff"/>
+              <path d="M260 320 C260 120 540 120 540 320" fill="none" stroke="#1e2a4f" stroke-width="26" stroke-linecap="round"/>
+              <rect x="220" y="290" width="90" height="140" rx="38" fill="#1d4ed8"/>
+              <rect x="490" y="290" width="90" height="140" rx="38" fill="#1d4ed8"/>
+              <text x="40" y="70" font-family="system-ui, sans-serif" font-size="32" font-weight="700" fill="#1e2a4f">Front</text>
+            </svg>
+          </li>
+          <li class="slide" id="slide-2" role="group" aria-roledescription="slide" aria-label="2 of 5">
+            <svg role="img" aria-label="Side profile showing the cushioned ear cup" width="800" height="500" viewBox="0 0 800 500">
+              <rect width="800" height="500" fill="#ffe8d6"/>
+              <ellipse cx="400" cy="270" rx="140" ry="170" fill="#7a3e12"/>
+              <ellipse cx="400" cy="270" rx="95" ry="120" fill="#e9a36b"/>
+              <text x="40" y="70" font-family="system-ui, sans-serif" font-size="32" font-weight="700" fill="#5a2c0a">Side</text>
+            </svg>
+          </li>
+          <li class="slide" id="slide-3" role="group" aria-roledescription="slide" aria-label="3 of 5">
+            <svg role="img" aria-label="Folded flat inside the travel case" width="800" height="500" viewBox="0 0 800 500">
+              <rect width="800" height="500" fill="#dff5e6"/>
+              <rect x="180" y="120" width="440" height="280" rx="120" fill="#1f5133"/>
+              <rect x="220" y="160" width="360" height="200" rx="90" fill="#7cc495"/>
+              <text x="40" y="70" font-family="system-ui, sans-serif" font-size="32" font-weight="700" fill="#1f5133">Travel case</text>
+            </svg>
+          </li>
+          <li class="slide" id="slide-4" role="group" aria-roledescription="slide" aria-label="4 of 5">
+            <svg role="img" aria-label="Touch controls on the right ear cup" width="800" height="500" viewBox="0 0 800 500">
+              <rect width="800" height="500" fill="#f1e4ff"/>
+              <circle cx="400" cy="270" r="150" fill="#4b1d7a"/>
+              <circle cx="400" cy="270" r="60" fill="none" stroke="#d8b8ff" stroke-width="10"/>
+              <path d="M400 190 v-30 M400 350 v30 M320 270 h-30 M480 270 h30" stroke="#d8b8ff" stroke-width="10" stroke-linecap="round"/>
+              <text x="40" y="70" font-family="system-ui, sans-serif" font-size="32" font-weight="700" fill="#4b1d7a">Touch controls</text>
+            </svg>
+          </li>
+          <li class="slide" id="slide-5" role="group" aria-roledescription="slide" aria-label="5 of 5">
+            <svg role="img" aria-label="Available colours: midnight, sand and sage" width="800" height="500" viewBox="0 0 800 500">
+              <rect width="800" height="500" fill="#eeeeee"/>
+              <circle cx="240" cy="280" r="90" fill="#1d4ed8"/>
+              <circle cx="400" cy="280" r="90" fill="#c8a77a"/>
+              <circle cx="560" cy="280" r="90" fill="#6f9b7f"/>
+              <text x="40" y="70" font-family="system-ui, sans-serif" font-size="32" font-weight="700" fill="#222222">Colours</text>
+            </svg>
+          </li>
+        </ul>
+        <div class="carousel-controls">
+          <button type="button" class="nav-btn" id="prev" aria-controls="track" aria-label="Previous image">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>
+          </button>
+          <div class="dots" id="dots" role="group" aria-label="Choose image">
+            <button type="button" class="dot" aria-controls="track" aria-label="Image 1" aria-current="true" tabindex="0"></button>
+            <button type="button" class="dot" aria-controls="track" aria-label="Image 2" tabindex="-1"></button>
+            <button type="button" class="dot" aria-controls="track" aria-label="Image 3" tabindex="-1"></button>
+            <button type="button" class="dot" aria-controls="track" aria-label="Image 4" tabindex="-1"></button>
+            <button type="button" class="dot" aria-controls="track" aria-label="Image 5" tabindex="-1"></button>
+          </div>
+          <button type="button" class="nav-btn" id="next" aria-controls="track" aria-label="Next image">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+        <p class="slide-status" id="slide-status" aria-live="polite">Image 1 of 5</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Video -->
+  <section aria-labelledby="video-title">
+    <div class="wrap">
+      <h2 id="video-title">See it in action</h2>
+      <video width="1280" height="720" controls preload="metadata" playsinline aria-describedby="video-desc">
+        <source src="/media/demo.mp4" type="video/mp4">
+        <p>Your browser can't play this video. <a href="/media/demo.mp4">Download the Aria One demo (MP4)</a>.</p>
+      </video>
+      <p id="video-desc" class="visually-hidden">A one-minute demo of Aria One's noise cancelling, touch controls and folding design.</p>
+    </div>
+  </section>
+
+  <!-- Reviews -->
+  <section aria-labelledby="reviews-title">
+    <div class="wrap">
+      <div class="reviews-head">
+        <h2 id="reviews-title">Reviews</h2>
+        <div class="filter">
+          <label for="rating-filter">Filter by rating</label>
+          <select id="rating-filter" aria-controls="review-list">
+            <option value="all">All ratings</option>
+            <option value="5">5 stars</option>
+            <option value="4">4 stars</option>
+            <option value="3">3 stars</option>
+            <option value="2">2 stars</option>
+            <option value="1">1 star</option>
+          </select>
+        </div>
+        <button type="button" class="btn secondary" id="guidelines-btn" popovertarget="guidelines" aria-controls="guidelines">Review guidelines</button>
+      </div>
+
+      <div id="guidelines" class="guidelines" popover tabindex="-1" role="region" aria-labelledby="guidelines-title">
+        <h3 id="guidelines-title">Review guidelines</h3>
+        <ul>
+          <li>Describe your own experience with Aria One.</li>
+          <li>Keep it respectful; no personal details or links.</li>
+          <li>Reviews are checked before they appear.</li>
+        </ul>
+        <button type="button" class="btn secondary close" id="guidelines-close" popovertarget="guidelines" popovertargetaction="hide">Close</button>
+      </div>
+
+      <p class="review-count" id="review-count" role="status" aria-live="polite">Loading reviews…</p>
+      <ol class="review-list" id="review-list" aria-labelledby="reviews-title"></ol>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">Aria One is a fictional product.</div>
+</footer>
+
+<script>
+(() => {
+  'use strict';
+  const $ = (id) => document.getElementById(id);
+  const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+  const scrollBehavior = () => (reducedMotion.matches ? 'auto' : 'smooth');
+  const yieldToMain = () =>
+    globalThis.scheduler?.yield ? scheduler.yield() : new Promise((r) => setTimeout(r, 0));
+
+  /* ---------- Add to cart ---------- */
+  let cartCount = 0;
+  $('add-to-cart').addEventListener('click', () => {
+    cartCount += 1;
+    $('cart-status').textContent =
+      `✓ Aria One added to cart (${cartCount} ${cartCount === 1 ? 'item' : 'items'}).`;
+  });
+
+  /* ---------- Carousel (CSS scroll snap does the swipe physics) ---------- */
+  const track = $('track');
+  const slides = [...track.querySelectorAll('.slide')];
+  const dots = [...$('dots').querySelectorAll('.dot')];
+  let current = 0;
+
+  function setCurrent(i) {
+    if (i === current) return;
+    current = i;
+    dots.forEach((d, n) => {
+      const on = n === i;
+      if (on) d.setAttribute('aria-current', 'true'); else d.removeAttribute('aria-current');
+    });
+    $('slide-status').textContent = `Image ${i + 1} of ${slides.length}`;
+  }
+
+  function goTo(i) {
+    const n = (i + slides.length) % slides.length;
+    track.scrollTo({ left: slides[n].offsetLeft - track.offsetLeft, behavior: scrollBehavior() });
+    setCurrent(n);
+  }
+
+  // Track the visible slide without scroll listeners
+  const io = new IntersectionObserver((entries) => {
+    for (const e of entries) {
+      if (e.isIntersecting) setCurrent(slides.indexOf(e.target));
+    }
+  }, { root: track, threshold: 0.6 });
+  slides.forEach((s) => io.observe(s));
+
+  $('prev').addEventListener('click', () => goTo(current - 1));
+  $('next').addEventListener('click', () => goTo(current + 1));
+  dots.forEach((d, i) => d.addEventListener('click', () => goTo(i)));
+
+  // Indicators are one tab stop; arrow keys move between them (roving tabindex)
+  $('dots').addEventListener('keydown', (e) => {
+    const i = dots.indexOf(document.activeElement);
+    if (i < 0) return;
+    const next = { ArrowRight: i + 1, ArrowLeft: i - 1, Home: 0, End: dots.length - 1 }[e.key];
+    if (next === undefined) return;
+    e.preventDefault();
+    const t = (next + dots.length) % dots.length;
+    dots[i].tabIndex = -1;
+    dots[t].tabIndex = 0;
+    dots[t].focus();
+    goTo(t);
+  });
+
+  /* ---------- Review guidelines popover ---------- */
+  const panel = $('guidelines');
+  const trigger = $('guidelines-btn');
+  const popoverSupported = HTMLElement.prototype.hasOwnProperty('popover');
+
+  if (popoverSupported) {
+    // Native light dismiss (outside click + Esc) and focus return to the trigger.
+    panel.addEventListener('toggle', (e) => {
+      trigger.setAttribute('aria-expanded', String(e.newState === 'open'));
+      if (e.newState === 'open') panel.focus();
+    });
+    trigger.setAttribute('aria-expanded', 'false');
+  } else {
+    // Fallback: hidden toggle with Esc and outside-click handling
+    panel.removeAttribute('popover');
+    panel.classList.add('fallback');
+    panel.hidden = true;
+    trigger.setAttribute('aria-expanded', 'false');
+    const setOpen = (open, restoreFocus) => {
+      panel.hidden = !open;
+      trigger.setAttribute('aria-expanded', String(open));
+      if (open) panel.focus();
+      else if (restoreFocus) trigger.focus();
+    };
+    trigger.addEventListener('click', () => setOpen(panel.hidden, false));
+    $('guidelines-close').addEventListener('click', () => setOpen(false, true));
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !panel.hidden) setOpen(false, true);
+    });
+    document.addEventListener('click', (e) => {
+      if (panel.hidden || trigger.contains(e.target)) return;
+      const r = panel.getBoundingClientRect();
+      const inside = e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
+      if (!inside && !panel.contains(e.target)) setOpen(false, false);
+    });
+  }
+
+  /* ---------- Reviews ---------- */
+  // Deterministic PRNG so the generated reviews are stable between loads
+  let seed = 20261123;
+  const rand = () => ((seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296);
+  const pick = (arr) => arr[Math.floor(rand() * arr.length)];
+
+  const first = ['Maya', 'Leo', 'Priya', 'Tom', 'Aiko', 'Sam', 'Noor', 'Diego', 'Chloe', 'Kwame',
+    'Lena', 'Raj', 'Sofia', 'Ben', 'Hana', 'Omar', 'Ines', 'Jack', 'Yara', 'Felix'];
+  const last = ['A.', 'B.', 'C.', 'D.', 'E.', 'F.', 'G.', 'H.', 'K.', 'L.', 'M.', 'N.', 'P.', 'R.', 'S.', 'T.', 'W.'];
+  const texts = {
+    5: ['Best headphones I have owned. The noise cancelling on the train is unreal.',
+        'Comfortable for a full workday and the battery just keeps going.',
+        'Crisp highs, tight bass, and the case is genuinely pocketable.',
+        'Calls sound clear on both ends. Worth every cent.'],
+    4: ['Great sound and comfort. The app could use a better EQ.',
+        'Really good noise cancelling; slightly warm after a few hours.',
+        'Love them overall, though the touch controls took a day to learn.',
+        'Excellent battery life. Wish the case had a little more padding.'],
+    3: ['Solid sound but they clamp a bit tightly on my head.',
+        'Decent, though not a big step up from my old pair.',
+        'Good for commuting, average for long listening sessions.'],
+    2: ['Bluetooth drops now and then when my phone is in my pocket.',
+        'Sound is fine but the ear cups get warm quickly.',
+        'Touch controls trigger by accident when I adjust them.'],
+    1: ['Left ear cup stopped working after a month.',
+        'Too tight for me and returning them was a hassle.',
+        'Could not get them to pair reliably with my laptop.'],
+  };
+  // Weighted rating distribution: mostly positive
+  const ratingFor = () => {
+    const r = rand();
+    return r < 0.45 ? 5 : r < 0.75 ? 4 : r < 0.88 ? 3 : r < 0.95 ? 2 : 1;
+  };
+  const reviews = Array.from({ length: 300 }, (_, i) => {
+    const rating = ratingFor();
+    return { id: i + 1, name: `${pick(first)} ${pick(last)}`, rating, text: pick(texts[rating]) };
+  });
+
+  const list = $('review-list');
+  const filterEl = $('rating-filter');
+  const countEl = $('review-count');
+  let activeFilter = 'all';
+  const matches = (rating) => activeFilter === 'all' || rating === Number(activeFilter);
+
+  function makeReview(r) {
+    const li = document.createElement('li');
+    li.className = 'review';
+    li.dataset.rating = String(r.rating);
+    li.hidden = !matches(r.rating);
+
+    const top = document.createElement('div');
+    top.className = 'review-top';
+    const name = document.createElement('p');
+    name.className = 'reviewer';
+    name.textContent = r.name;
+    const stars = document.createElement('p');
+    stars.className = 'stars';
+    const label = document.createElement('span');
+    label.className = 'visually-hidden';
+    label.textContent = `Rated ${r.rating} out of 5 stars`;
+    const on = document.createElement('span');
+    on.setAttribute('aria-hidden', 'true');
+    on.textContent = '★'.repeat(r.rating);
+    const off = document.createElement('span');
+    off.setAttribute('aria-hidden', 'true');
+    off.className = 'off';
+    off.textContent = '☆'.repeat(5 - r.rating);
+    stars.append(label, on, off);
+    top.append(name, stars);
+
+    const text = document.createElement('p');
+    text.className = 'review-text';
+    text.textContent = r.text;
+
+    li.append(top, text);
+    return li;
+  }
+
+  function updateCount() {
+    const n = activeFilter === 'all' ? reviews.length : reviews.filter((r) => matches(r.rating)).length;
+    const scope = activeFilter === 'all' ? '' : ` with ${activeFilter} star${activeFilter === '1' ? '' : 's'}`;
+    countEl.textContent = n === 0 ? `No reviews${scope}.` : `Showing ${n} review${n === 1 ? '' : 's'}${scope}.`;
+  }
+
+  // Render in chunks, yielding between them so the page stays responsive
+  async function renderReviews() {
+    const CHUNK = 50;
+    for (let i = 0; i < reviews.length; i += CHUNK) {
+      const frag = document.createDocumentFragment();
+      for (const r of reviews.slice(i, i + CHUNK)) frag.append(makeReview(r));
+      list.append(frag);
+      await yieldToMain();
+    }
+    updateCount();
+  }
+
+  filterEl.addEventListener('change', async () => {
+    activeFilter = filterEl.value;
+    await yieldToMain(); // let the select paint its new value before the list update
+    for (const li of list.children) li.hidden = !matches(Number(li.dataset.rating));
+    updateCount();
+  });
+
+  renderReviews();
+})();
+</script>
+</body>
+</html>

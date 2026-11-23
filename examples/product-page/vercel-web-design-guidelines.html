@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Aria One Headphones</title>
+<meta name="description" content="Aria One wireless headphones, $249.">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#111116" media="(prefers-color-scheme: dark)">
+<link rel="preload" href="/fonts/brand-sans.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+  @font-face {
+    font-family: "Brand Sans";
+    src: url("/fonts/brand-sans.woff2") format("woff2");
+    font-display: swap;
+  }
+  :root {
+    color-scheme: light dark;
+    --bg: #ffffff;
+    --fg: #16161a;
+    --muted: #55555f;
+    --accent: #3b3bd6;
+    --accent-hover: #2a2ab0;
+    --on-accent: #ffffff;
+    --surface: #f2f2f5;
+    --surface-hover: #e4e4ea;
+    --border: #c9c9d3;
+    --star: #9a6700;
+    --focus: #3b3bd6;
+    --heading: "Brand Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --body: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #111116;
+      --fg: #f1f1f4;
+      --muted: #a8a8b4;
+      --accent: #8c8cff;
+      --accent-hover: #a9a9ff;
+      --on-accent: #0b0b10;
+      --surface: #1d1d24;
+      --surface-hover: #2a2a33;
+      --border: #3a3a46;
+      --star: #f2c14e;
+      --focus: #a9a9ff;
+    }
+  }
+  * { box-sizing: border-box; }
+  html {
+    -webkit-tap-highlight-color: transparent;
+    overflow-x: hidden;
+  }
+  @media (pointer: fine) {
+    html { overscroll-behavior: none; }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    html, .track { scroll-behavior: smooth; }
+  }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font: 16px/1.5 var(--body);
+    padding: 0 env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+  h1, h2, h3 { font-family: var(--heading); line-height: 1.15; text-wrap: balance; scroll-margin-top: 16px; }
+  p { text-wrap: pretty; }
+  button, select, a { touch-action: manipulation; }
+  section { padding: 48px 16px; max-width: 960px; margin: 0 auto; scroll-margin-top: 16px; }
+  .visually-hidden {
+    position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
+
+  .skip-link {
+    position: absolute; left: 16px; top: -100px; z-index: 100;
+    background: var(--accent); color: var(--on-accent);
+    padding: 8px 12px; border-radius: 8px; text-decoration: none;
+  }
+  .skip-link:focus-visible { top: calc(8px + env(safe-area-inset-top)); outline: 2px solid var(--fg); outline-offset: 2px; }
+
+  /* Hero fills the phone viewport, accounting for dynamic browser UI and notches */
+  .hero {
+    min-height: 100vh;
+    min-height: 100svh;
+    padding-top: calc(48px + env(safe-area-inset-top));
+    display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: 16px;
+  }
+  .hero h1 { font-size: clamp(2.5rem, 12vw, 5rem); margin: 0; }
+  .tagline { margin: 0; color: var(--muted); font-size: 1.125rem; }
+  .price { font-size: 1.5rem; margin: 0; font-variant-numeric: tabular-nums; }
+  .status { min-height: 1.5em; margin: 0; color: var(--muted); }
+
+  .btn {
+    font: inherit; min-height: 44px; padding: 10px 20px; border-radius: 10px;
+    border: 1px solid var(--border); background: var(--surface); color: var(--fg); cursor: pointer;
+    transition: background-color .15s ease, border-color .15s ease, transform .15s ease;
+  }
+  .btn:hover { background: var(--surface-hover); border-color: var(--fg); }
+  .btn:active { transform: scale(.97); }
+  .btn:focus-visible, .dot:focus-visible, .track:focus-visible, select:focus-visible {
+    outline: 3px solid var(--focus); outline-offset: 2px;
+  }
+  .btn-primary { background: var(--accent); color: var(--on-accent); border-color: var(--accent); font-weight: 600; }
+  .btn-primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+  .btn-icon { width: 44px; padding: 0; display: inline-grid; place-items: center; }
+  .btn-icon svg { width: 20px; height: 20px; }
+  @media (prefers-reduced-motion: reduce) {
+    .btn { transition: none; }
+    .btn:active { transform: none; }
+  }
+
+  /* Carousel: native scroll-snap gives touch swipe; buttons, dots and arrow keys are alternatives */
+  .track {
+    display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none;
+    overscroll-behavior-x: contain; border-radius: 12px;
+    -webkit-user-select: none; user-select: none;
+  }
+  .track::-webkit-scrollbar { display: none; }
+  .slide { flex: 0 0 100%; min-width: 0; scroll-snap-align: center; }
+  .slide svg { display: block; width: 100%; height: auto; aspect-ratio: 8 / 5; }
+  .controls { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 12px; }
+  .dots { display: flex; gap: 4px; }
+  .dot {
+    width: 32px; height: 32px; border: 0; padding: 0; background: transparent; cursor: pointer;
+    display: grid; place-items: center; border-radius: 50%;
+  }
+  .dot::before {
+    content: ""; width: 10px; height: 10px; border-radius: 50%; background: var(--border);
+    transition: background-color .15s ease, transform .15s ease;
+  }
+  .dot:hover::before { background: var(--muted); }
+  .dot[aria-current="true"]::before { background: var(--accent); transform: scale(1.3); }
+  @media (prefers-reduced-motion: reduce) { .dot::before { transition: none; } }
+
+  video { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; border-radius: 12px; background: #000; }
+  details { margin-top: 12px; }
+  summary { cursor: pointer; }
+  summary:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 4px; }
+
+  .reviews-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; position: relative; }
+  .reviews-head h2 { margin: 0; min-width: 0; }
+  .filter { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 16px 0 8px; }
+  select {
+    font: inherit; min-height: 44px; padding: 8px 12px; border-radius: 10px;
+    border: 1px solid var(--border); background-color: var(--surface); color: var(--fg); cursor: pointer;
+  }
+  select:hover { border-color: var(--fg); }
+  .count { margin: 0 0 8px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .review-list { list-style: none; margin: 0; padding: 0; }
+  .review {
+    border-bottom: 1px solid var(--border); padding: 16px 0;
+    content-visibility: auto; contain-intrinsic-size: auto 120px;
+  }
+  .review h3 { margin: 0 0 4px; font-size: 1rem; overflow-wrap: anywhere; }
+  .review p { margin: 4px 0 0; overflow-wrap: anywhere; }
+  .stars { color: var(--star); letter-spacing: 2px; font-variant-numeric: tabular-nums; }
+  .empty { padding: 24px 0; color: var(--muted); }
+
+  .panel {
+    position: absolute; right: 0; top: calc(100% + 8px); width: min(320px, calc(100vw - 32px));
+    max-height: 60vh; overflow-y: auto; overscroll-behavior: contain;
+    background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 12px;
+    padding: 16px; box-shadow: 0 8px 24px rgba(0,0,0,.2); z-index: 10;
+  }
+  .panel h3 { margin: 0 0 8px; font-size: 1.05rem; }
+  .panel ul { margin: 0; padding-left: 20px; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to Main Content</a>
+<main id="main" tabindex="-1">
+  <section class="hero" aria-labelledby="product-name">
+    <h1 id="product-name" translate="no">Aria&nbsp;One</h1>
+    <p class="tagline">Wireless noise-cancelling headphones.</p>
+    <p class="price" id="price" data-amount="249" data-currency="USD">$249</p>
+    <button type="button" class="btn btn-primary" id="add">Add to Cart</button>
+    <p class="status" id="cart-status" role="status" aria-live="polite"></p>
+  </section>
+
+  <section aria-labelledby="gallery-heading">
+    <h2 id="gallery-heading">Gallery</h2>
+    <div class="carousel">
+      <div class="track" id="track" tabindex="0" role="region" aria-roledescription="carousel"
+           aria-label="Aria One product images. Use left and right arrow keys to change image."></div>
+      <div class="controls">
+        <button type="button" class="btn btn-icon" id="prev" aria-label="Previous Image">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div class="dots" id="dots" role="group" aria-label="Choose image"></div>
+        <button type="button" class="btn btn-icon" id="next" aria-label="Next Image">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+      <p class="visually-hidden" id="slide-status" aria-live="polite"></p>
+    </div>
+  </section>
+
+  <section aria-labelledby="video-heading">
+    <h2 id="video-heading">See It in Action</h2>
+    <video controls playsinline preload="none" width="1280" height="720" aria-describedby="video-desc">
+      <source src="/media/demo.mp4" type="video/mp4">
+      Your browser can’t play this video. <a href="/media/demo.mp4">Download the demo video (MP4)</a>.
+    </video>
+    <p id="video-desc" class="visually-hidden">Product demo of <span translate="no">Aria One</span>, 1280×720.</p>
+    <details>
+      <summary>Video Transcript</summary>
+      <p>The demo shows <span translate="no">Aria One</span> unfolding, pairing with a phone in 1 tap, switching noise cancelling on during a busy commute, and folding flat into its case.</p>
+    </details>
+  </section>
+
+  <section aria-labelledby="reviews-heading">
+    <div class="reviews-head">
+      <h2 id="reviews-heading">Reviews</h2>
+      <button type="button" class="btn" id="guide-btn" aria-expanded="false" aria-controls="panel">Review Guidelines</button>
+      <div class="panel" id="panel" role="region" aria-labelledby="panel-heading" tabindex="-1" hidden>
+        <h3 id="panel-heading">Review Guidelines</h3>
+        <ul>
+          <li>Describe your own experience with the product.</li>
+          <li>Leave out personal info like phone numbers or addresses.</li>
+          <li>Keep it respectful—no hate speech or spam.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="filter">
+      <label for="filter">Filter by Rating</label>
+      <select id="filter" name="rating" autocomplete="off">
+        <option value="all">All Ratings</option>
+        <option value="5">5&nbsp;stars</option>
+        <option value="4">4&nbsp;stars</option>
+        <option value="3">3&nbsp;stars</option>
+        <option value="2">2&nbsp;stars</option>
+        <option value="1">1&nbsp;star</option>
+      </select>
+    </div>
+    <p class="count" id="count" role="status" aria-live="polite"></p>
+    <ul class="review-list" id="list"></ul>
+  </section>
+</main>
+
+<script>
+(() => {
+  const locale = navigator.languages && navigator.languages.length ? navigator.languages[0] : "en-US";
+  const intNum = new Intl.NumberFormat(locale);
+
+  // Price
+  const priceEl = document.getElementById("price");
+  priceEl.textContent = new Intl.NumberFormat(locale, {
+    style: "currency", currency: priceEl.dataset.currency, maximumFractionDigits: 0
+  }).format(Number(priceEl.dataset.amount));
+
+  // Cart
+  const cartStatus = document.getElementById("cart-status");
+  let cartCount = 0;
+  document.getElementById("add").addEventListener("click", () => {
+    cartCount += 1;
+    cartStatus.textContent = `Added to your cart (${intNum.format(cartCount)} in cart).`;
+  });
+
+  // URL state helpers
+  const params = new URLSearchParams(location.search);
+  function setParam(key, value) {
+    const p = new URLSearchParams(location.search);
+    if (value == null) p.delete(key); else p.set(key, value);
+    const qs = p.toString();
+    history.replaceState(null, "", location.pathname + (qs ? "?" + qs : "") + location.hash);
+  }
+
+  // Carousel
+  const slides = [
+    { color: "#3b3bd6", label: "Aria One in Midnight Blue, front view" },
+    { color: "#b8352c", label: "Aria One in Ember Red, side profile" },
+    { color: "#1f7a56", label: "Aria One ear cushions, close-up" },
+    { color: "#8a5d00", label: "Aria One folded in its carrying case" },
+    { color: "#5a2fc2", label: "Aria One control buttons and USB-C port" }
+  ];
+  const track = document.getElementById("track");
+  const dots = document.getElementById("dots");
+  const slideStatus = document.getElementById("slide-status");
+  const total = slides.length;
+  const svgNS = "http://www.w3.org/2000/svg";
+  let index = 0;
+
+  slides.forEach((s, i) => {
+    const slide = document.createElement("div");
+    slide.className = "slide";
+    slide.setAttribute("role", "group");
+    slide.setAttribute("aria-roledescription", "slide");
+    slide.setAttribute("aria-label", `${i + 1} of ${total}`);
+    slide.dataset.index = i;
+    const svg = document.createElementNS(svgNS, "svg");
+    svg.setAttribute("viewBox", "0 0 800 500");
+    svg.setAttribute("width", "800");
+    svg.setAttribute("height", "500");
+    svg.setAttribute("role", "img");
+    svg.setAttribute("aria-label", s.label);
+    svg.innerHTML =
+      `<rect width="800" height="500" fill="${s.color}"/>` +
+      `<g fill="none" stroke="#fff" stroke-width="26" stroke-linecap="round">` +
+      `<path d="M260 300 V240 a140 140 0 0 1 280 0 V300"/></g>` +
+      `<rect x="225" y="280" width="70" height="120" rx="30" fill="#fff"/>` +
+      `<rect x="505" y="280" width="70" height="120" rx="30" fill="#fff"/>` +
+      `<text x="400" y="470" fill="#fff" font-size="26" font-family="system-ui, sans-serif" text-anchor="middle">View ${i + 1}</text>`;
+    slide.appendChild(svg);
+    track.appendChild(slide);
+
+    const dot = document.createElement("button");
+    dot.type = "button";
+    dot.className = "dot";
+    dot.setAttribute("aria-label", `Show Image ${i + 1} of ${total}`);
+    dot.addEventListener("click", () => go(i));
+    dots.appendChild(dot);
+  });
+
+  function markActive(i, announce) {
+    index = i;
+    [...dots.children].forEach((d, j) => {
+      if (j === i) d.setAttribute("aria-current", "true"); else d.removeAttribute("aria-current");
+    });
+    if (announce) slideStatus.textContent = `Image ${i + 1} of ${total}: ${slides[i].label}`;
+  }
+  function go(i) {
+    const target = ((i % total) + total) % total;
+    track.children[target].scrollIntoView({ block: "nearest", inline: "center" });
+    markActive(target, true);
+  }
+
+  // Track the visible slide without reading layout on every scroll event
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting && e.intersectionRatio >= 0.6) {
+        const i = Number(e.target.dataset.index);
+        if (i !== index) markActive(i, false);
+      }
+    });
+  }, { root: track, threshold: [0.6] });
+  [...track.children].forEach(s => io.observe(s));
+
+  document.getElementById("prev").addEventListener("click", () => go(index - 1));
+  document.getElementById("next").addEventListener("click", () => go(index + 1));
+  track.addEventListener("keydown", e => {
+    if (e.key === "ArrowLeft") { e.preventDefault(); go(index - 1); }
+    else if (e.key === "ArrowRight") { e.preventDefault(); go(index + 1); }
+    else if (e.key === "Home") { e.preventDefault(); go(0); }
+    else if (e.key === "End") { e.preventDefault(); go(total - 1); }
+  });
+  markActive(0, false);
+
+  // Reviews (300 generated)
+  const firstNames = ["Sam", "Priya", "Lena", "Marco", "Aiko", "Tom", "Zara", "Diego", "Noor", "Ivan", "Bartholomew-Alexander"];
+  const texts = [
+    "Great sound.",
+    "Comfortable for long sessions, but the case is a bit bulky for small bags.",
+    "Battery life is excellent—I charge them once a week.",
+    "Noise cancelling could be stronger on planes.",
+    "Love them!",
+    "Pairing took a few tries with my laptop, and the app kept asking me to update firmware before it would let me change the EQ settings. Once set up, though, they’ve been reliable every day."
+  ];
+  // Deterministic pseudo-random so the list is stable between reloads
+  let seed = 42;
+  const rand = () => (seed = (seed * 1664525 + 1013904223) % 4294967296) / 4294967296;
+  const weights = [1, 1, 2, 3, 4]; // skew toward higher ratings
+  const pickRating = () => {
+    let r = rand() * 11;
+    for (let k = 0; k < 5; k++) { r -= weights[k]; if (r < 0) return k + 1; }
+    return 5;
+  };
+  const reviews = Array.from({ length: 300 }, () => ({
+    name: `${firstNames[Math.floor(rand() * firstNames.length)]} ${String.fromCharCode(65 + Math.floor(rand() * 26))}.`,
+    rating: pickRating(),
+    text: texts[Math.floor(rand() * texts.length)]
+  }));
+
+  const list = document.getElementById("list");
+  const countEl = document.getElementById("count");
+  const filterEl = document.getElementById("filter");
+
+  function reviewNode(r) {
+    const li = document.createElement("li");
+    li.className = "review";
+    const h = document.createElement("h3");
+    h.textContent = r.name || "Anonymous";
+    const stars = document.createElement("div");
+    stars.className = "stars";
+    const label = document.createElement("span");
+    label.className = "visually-hidden";
+    label.textContent = `Rated ${r.rating} out of 5`;
+    const visual = document.createElement("span");
+    visual.setAttribute("aria-hidden", "true");
+    visual.textContent = "★".repeat(r.rating) + "☆".repeat(5 - r.rating);
+    stars.append(label, visual);
+    const p = document.createElement("p");
+    p.textContent = r.text || "No written review.";
+    li.append(h, stars, p);
+    return li;
+  }
+
+  function render(filter) {
+    const shown = filter === "all" ? reviews : reviews.filter(r => r.rating === Number(filter));
+    const frag = document.createDocumentFragment();
+    shown.forEach(r => frag.appendChild(reviewNode(r)));
+    if (!shown.length) {
+      const li = document.createElement("li");
+      li.className = "empty";
+      li.textContent = "No reviews with this rating yet. Choose “All Ratings” to see every review.";
+      frag.appendChild(li);
+    }
+    list.replaceChildren(frag);
+    countEl.textContent = `Showing ${intNum.format(shown.length)} of ${intNum.format(reviews.length)} reviews`;
+  }
+
+  const validRatings = ["all", "1", "2", "3", "4", "5"];
+  const initial = validRatings.includes(params.get("rating")) ? params.get("rating") : "all";
+  filterEl.value = initial;
+  render(initial);
+  filterEl.addEventListener("change", () => {
+    render(filterEl.value);
+    setParam("rating", filterEl.value === "all" ? null : filterEl.value);
+  });
+
+  // Non-modal guidelines panel: closes on outside click or Esc
+  const panel = document.getElementById("panel");
+  const guideBtn = document.getElementById("guide-btn");
+  function setPanel(open, { restoreFocus = false } = {}) {
+    panel.hidden = !open;
+    guideBtn.setAttribute("aria-expanded", String(open));
+    setParam("guidelines", open ? "open" : null);
+    if (!open && restoreFocus) guideBtn.focus();
+  }
+  guideBtn.addEventListener("click", () => setPanel(panel.hidden));
+  document.addEventListener("pointerdown", e => {
+    if (!panel.hidden && !panel.contains(e.target) && !guideBtn.contains(e.target)) setPanel(false);
+  });
+  document.addEventListener("focusin", e => {
+    if (!panel.hidden && !panel.contains(e.target) && !guideBtn.contains(e.target)) setPanel(false);
+  });
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape" && !panel.hidden) {
+      const focusWasInside = panel.contains(document.activeElement) || document.activeElement === guideBtn;
+      setPanel(false, { restoreFocus: focusWasInside });
+    }
+  });
+  if (params.get("guidelines") === "open") setPanel(true);
+})();
+</script>
+</body>
+</html>

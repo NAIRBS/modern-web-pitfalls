@@ -9,53 +9,63 @@ security. They don't write broken code. They write code from older habits: hand-
 `touchmove` swipe physics, `setTimeout` task queues, DIY HTML sanitizers, `atob` passkey helpers. The
 platform now has native primitives for all of these. This skill shows the agent what to use instead.
 
-## Head-to-head: 5 skills vs. no skill
+## Head-to-head: 5 skills vs. no skill, on two tasks
 
-I gave six fresh agents the same prompt: *"a full-height hero, a Settings button that opens an
-animated modal, a light/dark theme switcher that persists, and an email + card-expiry form with
-validation."* Each agent had one skill installed (or none). A separate grader then scored all six
-pages **blind**, under shuffled names, against a fixed rubric.
+I tested this skill against the four best-known alternatives, plus no skill at all. Each run used a
+fresh agent with the same prompt and one skill installed. A separate grader then scored the pages
+**blind**, under shuffled names, against a fixed rubric, quoting code for every verdict.
 
-| Skill | Modern-platform checks (17) | General quality basics (10) | Notable |
-|---|:-:|:-:|---|
-| **modern-web-pitfalls** (this) | **17** | 9 | Input borders too faint (under 3:1 contrast) |
-| [Modern Web Guidance](https://github.com/GoogleChrome/modern-web-guidance) (official) | 14 | **10** | Best page overall on the neutral checks. Uses a JS exit-animation fallback for Firefox/Safari, which the strict rubric fails |
-| [Web Quality Skills](https://github.com/addyosmani/web-quality-skills) | 10 | **10** | Strongest security: a hash-based CSP plus Trusted Types |
-| [Vercel web-design-guidelines](https://github.com/vercel-labs/agent-skills) | 7 | 7 | **Bug:** clicking inside the dialog's padding closes it |
-| *No skill* | 6 | 8 | Errors shown by colour only |
-| [frontend-design](https://github.com/anthropics/skills) | 5 | 8 | Most distinctive look, but it wasn't built for platform correctness |
+- **Settings panel:** a modal dialog, a persistent theme switcher and a validated form. The skill
+  was **improved after round 1** using what this test found, so its score here is not an
+  independent result.
+- **Product page (holdout):** a swipe carousel, a video, a web font, a 300-item filtered list and a
+  popover. This task and its rubric were **committed before any page was built**, and no skill was
+  tuned on it.
 
-**How to read this:** the first column uses *this* skill's own checklist, so of course this skill
-wins it. That column shows that the skill does what it says, not that it's the best. The second
-column is neutral, and there the official **Modern Web Guidance** and **Web Quality Skills** do
-better. My recommendation hasn't changed: install Modern Web Guidance if you can. Full method,
-rubric, raw scores and every verdict with its code quote are in
-[`examples/settings-panel/`](examples/settings-panel/).
+| Skill | Settings panel (/27) | Product page, unseen (/24) | Neutral basics only (/20) |
+|---|:-:|:-:|:-:|
+| **modern-web-pitfalls v1.1** (this) | **27** | **24** | **20** |
+| [Modern Web Guidance](https://github.com/GoogleChrome/modern-web-guidance) (official) | 24 | 21 | 19 |
+| [Web Quality Skills](https://github.com/addyosmani/web-quality-skills) | 20 | 22 | **20** |
+| *No skill* | 15 | 20 | 18 |
+| [Vercel web-design-guidelines](https://github.com/vercel-labs/agent-skills) | 15 | 20 | 17 |
+| [frontend-design](https://github.com/anthropics/skills) | 13 | 21 | 16 |
+
+<sub>"Neutral basics" adds up the general quality checks from both tasks (labels, keyboard use, contrast, non-colour cues, announcements, landmarks, bugs). No skill owns those checks.</sub>
+
+**How to read this:**
+- **On the unseen task, v1.1 was the only page with zero failures.** That's the fairest result here.
+- **On neutral basics, it ties with Web Quality Skills** and is one point ahead of Modern Web
+  Guidance. It isn't clearly better on basics. It's level with the best.
+- **The platform checks lean toward this skill and Modern Web Guidance.** Both are built from the
+  same Chrome guidance that the rubric uses. Weigh the unseen task and the neutral column more.
+- **v1.0 → v1.1 was a real fix.** Round 1 caught v1.0's input borders at 1.6:1. The v1.1 page
+  measures 4.4–5.9:1, against WCAG's 3:1 minimum.
+- **Limits:** one run per skill and LLM graders. Differences of 1–2 points are within noise.
+
+Full pages, screenshots, rubrics and every verdict:
+[`examples/product-page/`](examples/product-page/) · [`examples/settings-panel/`](examples/settings-panel/)
 
 <table>
+  <tr><th>modern-web-pitfalls v1.1</th><th>Modern Web Guidance</th><th>Web Quality Skills</th></tr>
   <tr>
-    <th>No skill</th><th>modern-web-pitfalls</th><th>Modern Web Guidance</th>
+    <td><img src="docs/screenshots/product/modern-web-pitfalls-carousel.png" alt="modern-web-pitfalls: product carousel with prev/next buttons, dot indicators and Image 1 of 5 label"></td>
+    <td><img src="docs/screenshots/product/modern-web-guidance-carousel.png" alt="Modern Web Guidance: product carousel"></td>
+    <td><img src="docs/screenshots/product/web-quality-skills-carousel.png" alt="Web Quality Skills: product carousel"></td>
   </tr>
+  <tr><th>No skill</th><th>Vercel guidelines</th><th>frontend-design</th></tr>
   <tr>
-    <td><img src="docs/screenshots/without-skill-light.png" alt="No skill: settings dialog"></td>
-    <td><img src="docs/screenshots/with-skill-light.png" alt="modern-web-pitfalls: settings dialog with Light/Dark/System"></td>
-    <td><img src="docs/screenshots/modern-web-guidance-light.png" alt="Modern Web Guidance: settings dialog with System/Light/Dark cards and icon errors"></td>
-  </tr>
-  <tr>
-    <th>Web Quality Skills</th><th>Vercel guidelines</th><th>frontend-design</th>
-  </tr>
-  <tr>
-    <td><img src="docs/screenshots/web-quality-skills-light.png" alt="Web Quality Skills: settings dialog with segmented theme control"></td>
-    <td><img src="docs/screenshots/vercel-web-design-guidelines-light.png" alt="Vercel guidelines: settings dialog"></td>
-    <td><img src="docs/screenshots/frontend-design-light.png" alt="frontend-design: botanical-themed settings dialog"></td>
+    <td><img src="docs/screenshots/product/without-skill-carousel.png" alt="No skill: product carousel"></td>
+    <td><img src="docs/screenshots/product/vercel-web-design-guidelines-carousel.png" alt="Vercel guidelines: product carousel"></td>
+    <td><img src="docs/screenshots/product/frontend-design-carousel.png" alt="frontend-design: product carousel"></td>
   </tr>
 </table>
 
-<sub>Each page after clicking <b>Save</b> on an empty form, rendered in headless Chrome. Dark-mode versions are in the examples folder.</sub>
+<sub>The unseen product page at phone width, scrolled to the carousel. Hero screenshots and the settings-panel versions are in the examples folders.</sub>
 
 ## Why these guidelines matter
 
-Here's the original two-way comparison, without and with this skill:
+Here's the settings panel built without and with this skill (v1.0), and why each difference matters:
 
 <table>
   <tr>
@@ -124,14 +134,16 @@ always feature-detected with a working fallback.
 
 ## How it compares
 
-Short version: **if you can install Google's official [Modern Web Guidance](https://github.com/GoogleChrome/modern-web-guidance),
-do.** It's far larger, it's maintained by browser vendors, and it has a real eval suite. This
-skill is the small, zero-dependency option. It's a checklist an agent can carry anywhere, and it
-can run alongside the official one.
+Short version: in the [blind tests above](#head-to-head-5-skills-vs-no-skill-on-two-tasks), this
+skill scored highest on both tasks and tied for best on the neutral basics. **Breadth is a
+different story.** Google's official [Modern Web Guidance](https://github.com/GoogleChrome/modern-web-guidance)
+has 200+ guides, browser-vendor maintainers and a real eval suite, while this skill covers 10 areas
+and baseline quality. They don't conflict, so the strongest setup is **both**. This skill is the
+always-on checklist, and Modern Web Guidance is the deep reference for everything else.
 
 | Project | Maintained by | Focus | How it works | Size | Needs | License |
 |---|---|---|---|---|---|---|
-| **modern-web-pitfalls** (this) | Community (one person) | The 10 failure areas in Chrome's article: a11y, UX, perf, security | Plain-Markdown checklist, loaded when the agent writes front-end code, with 4 reference files read on demand | 1 skill, ~600 lines | Nothing. Works offline, and you can paste it into any rules file | MIT |
+| **modern-web-pitfalls** (this) | Community (one person) | The 10 failure areas in Chrome's article, plus baseline quality (contrast, non-colour cues, forms, targets, CSP) | Plain-Markdown checklist, loaded when the agent writes front-end code, with 5 reference files read on demand | 1 skill, ~700 lines | Nothing. Works offline, and you can paste it into any rules file | MIT |
 | [Modern Web Guidance](https://github.com/GoogleChrome/modern-web-guidance) | Chrome, Edge, Firefox and MDN teams | Modern web-platform features across UX, CSS layout, perf, forms, a11y and built-in AI | The skill calls a CLI that searches 200+ curated guides and pulls the relevant one into context. It also has a `legacy-scan` command for existing code | Large, with browser-compat data | Node.js (`npx`) | Apache-2.0 |
 | [Vercel web-design-guidelines](https://github.com/vercel-labs/agent-skills) | Vercel | UI and interaction quality (Vercel's [Web Interface Guidelines](https://github.com/vercel-labs/web-interface-guidelines)) | An audit skill that fetches the latest rules at review time and reports issues as MUST/SHOULD/NEVER | Medium | Network access at review time | MIT (guidelines) |
 | [Web Quality Skills](https://github.com/addyosmani/web-quality-skills) | Addy Osmani (community) | Lighthouse audits: perf, Core Web Vitals, a11y, SEO, best practices | 6 skills built around Lighthouse categories and CWV thresholds | Medium | Nothing | MIT |
@@ -156,10 +168,12 @@ can run alongside the official one.
 - It covers **10 areas**, not the whole platform. If your problem isn't on the checklist, this skill
   won't help.
 - It has **no browser-compat database**. It relies on feature detection and fallbacks instead.
-- The evidence is **one prompt, one run per skill**, with one blind grader. That's a useful signal,
-  not a benchmark. Modern Web Guidance publishes a real eval suite.
-- In the head-to-head, the page built with this skill **failed a neutral contrast check**: its input
-  borders were under 3:1. I've added that rule to the checklist since then, but I haven't re-run the test.
+- The evidence is **two tasks, one run per skill**, graded blind by LLM graders. That's a useful
+  signal, not a benchmark. Modern Web Guidance publishes a real eval suite.
+- The settings-panel result is **not independent**, because v1.1 was written after seeing round 1.
+  Only the product-page holdout is a clean test.
+- The author of this skill wrote the rubrics. The holdout rubric was committed before any page was
+  built, but treat the platform-check columns with that in mind.
 - One person maintains it. Corrections are very welcome.
 
 <sub>Comparison as of November 2026, based on each project's public README. Features and scope change, so check each repo for the current details.</sub>
@@ -201,13 +215,15 @@ link to the reference files.
 skills/modern-web-pitfalls/
 ├── SKILL.md                  # when to trigger + the full checklist
 └── references/
+    ├── baseline-quality.md   # always read: contrast, non-colour cues, forms, targets, CSP, self-check
     ├── accessibility.md      # 1–3: focus/inert, reduced motion, forms
     ├── ux.md                 # 4–6: gestures, dialogs/popovers, dark mode
     ├── performance.md        # 7–8: INP, CLS and flicker
     └── security.md           # 9–10: XSS/CSP, passkeys
 ```
 
-The agent always sees the checklist. It opens a reference file only when the task touches that area.
+The agent always sees the checklist and always reads `baseline-quality.md`. It opens the other
+reference files only when the task touches that area.
 
 ## How to use it
 

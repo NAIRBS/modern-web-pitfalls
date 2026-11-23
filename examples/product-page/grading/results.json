@@ -1,0 +1,672 @@
+{
+  "blind_id_mapping": {
+    "page-K": "modern-web-guidance",
+    "page-L": "without-skill",
+    "page-M": "web-quality-skills",
+    "page-N": "frontend-design",
+    "page-O": "modern-web-pitfalls",
+    "page-J": "vercel-web-design-guidelines"
+  },
+  "results": {
+    "vercel-web-design-guidelines": {
+      "A": {
+        "H1": [
+          "PASS",
+          "`.track{scroll-snap-type:x mandatory; overflow-x:auto}`; no pointermove/touchmove drag code"
+        ],
+        "H2": [
+          "PASS",
+          "`.track{... overscroll-behavior-x: contain}`"
+        ],
+        "H3": [
+          "PASS",
+          "prev/next `<button ... aria-label=\"Previous Image\">`; dots are `<button>` with `aria-label=\"Show Image i of 5\"` and `aria-current=\"true\"`"
+        ],
+        "H4": [
+          "PASS",
+          "`@media (prefers-reduced-motion: no-preference){ html, .track { scroll-behavior: smooth; } }`; JS scrollIntoView sets no behavior"
+        ],
+        "H5": [
+          "PASS",
+          "`new IntersectionObserver(..., {root: track, threshold:[0.6]})`; no scroll listener"
+        ],
+        "H6": [
+          "PASS",
+          "`<video ... width=\"1280\" height=\"720\">` plus `aspect-ratio: 16 / 9`"
+        ],
+        "H7": [
+          "FAIL",
+          "`font-display: swap` set, but no font-size-adjust or size-adjust/ascent-override fallback"
+        ],
+        "H8": [
+          "PASS",
+          "`min-height: 100vh; min-height: 100svh;`"
+        ],
+        "H9": [
+          "PASS",
+          "`.review{content-visibility:auto; contain-intrinsic-size:auto 120px}`"
+        ],
+        "H10": [
+          "PASS",
+          "`const frag = document.createDocumentFragment(); ... list.replaceChildren(frag);`"
+        ],
+        "H11": [
+          "FAIL",
+          "custom `hidden` panel, `position:absolute`, closed by `document.addEventListener(\"pointerdown\", ...)`; no popover"
+        ],
+        "H12": [
+          "PASS",
+          "`svg.setAttribute(\"width\",\"800\"); svg.setAttribute(\"height\",\"500\")` + `aspect-ratio: 8 / 5`"
+        ],
+        "H13": [
+          "PASS",
+          "panel toggled via `panel.hidden = !open`, no animation, no timers"
+        ],
+        "H14": [
+          "FAIL",
+          "no Content-Security-Policy set or suggested"
+        ]
+      },
+      "B": {
+        "G1": [
+          "PASS",
+          "`<label for=\"filter\">Filter by Rating</label><select id=\"filter\">`"
+        ],
+        "G2": [
+          "PASS",
+          "visually-hidden `Rated ${r.rating} out of 5`, glyphs `aria-hidden`"
+        ],
+        "G3": [
+          "FAIL",
+          "text fine (muted #55555f on #fff 7.4:1) but control borders `--border:#c9c9d3` on #fff = 1.64:1 (select, buttons); inactive dot same colour"
+        ],
+        "G4": [
+          "PASS",
+          "active dot `transform: scale(1.3)` plus colour; ratings use filled/outline star shapes; native select"
+        ],
+        "G5": [
+          "PASS",
+          "`.btn:focus-visible, .dot:focus-visible, .track:focus-visible, select:focus-visible { outline: 3px solid ... }` + summary/skip-link"
+        ],
+        "G6": [
+          "PASS",
+          "single `<h1 id=\"product-name\">`, h2 sections, h3 reviews, `<main id=\"main\">`"
+        ],
+        "G7": [
+          "PASS",
+          "svg `role=img aria-label=s.label`; track `aria-label=\"Aria One product images...\"`; slides `aria-label=\"1 of 5\"`"
+        ],
+        "G8": [
+          "PASS",
+          "`<p class=\"count\" id=\"count\" role=\"status\" aria-live=\"polite\">` -> `Showing N of 300 reviews`"
+        ],
+        "G9": [
+          "PASS",
+          "real buttons/select; `.btn{min-height:44px}`, `.dot{width:32px;height:32px}`"
+        ],
+        "G10": [
+          "PASS",
+          "no evident runtime errors; all features wired"
+        ]
+      },
+      "C": [
+        "Good: URL state for filter and panel via history.replaceState; dark-mode tokens; skip link.",
+        "Dark-mode border #3a3a46 on #111116 is also low contrast.",
+        "Guidelines panel is a hand-rolled overlay (pointerdown + focusin document handlers) rather than popover.",
+        "No metric-matched font fallback, so the heading swap can shift layout."
+      ],
+      "scoreA": 11,
+      "scoreB": 9
+    },
+    "modern-web-guidance": {
+      "A": {
+        "H1": [
+          "PASS",
+          "`.carousel-track{scroll-snap-type:x mandatory; overflow-x:auto}`; no drag physics (pointerdown only cancels a pending target)"
+        ],
+        "H2": [
+          "PASS",
+          "`overscroll-behavior-x: contain;`"
+        ],
+        "H3": [
+          "PASS",
+          "`<button type=\"button\" data-direction=\"previous\" aria-label=\"Previous image\">`; markers are buttons with `aria-label` (data-marker-name) and `aria-current=\"true\"`"
+        ],
+        "H4": [
+          "PASS",
+          "`behavior = () => (reduceMotion.matches ? 'auto' : 'smooth')`; CSS smooth only under `no-preference`"
+        ],
+        "H5": [
+          "FAIL",
+          "`track.addEventListener('scroll', () => { ... requestAnimationFrame(() => setActiveMarker(slides.indexOf(nearestSlide()))) })`; nearestSlide calls `getBoundingClientRect()` (rAF-throttled still fails)"
+        ],
+        "H6": [
+          "PASS",
+          "`<video ... width=\"1280\" height=\"720\">`"
+        ],
+        "H7": [
+          "PASS",
+          "`font-size-adjust: from-font;` on headings + `font-display: swap` (borderline: from-font, not a measured value)"
+        ],
+        "H8": [
+          "PASS",
+          "`min-height: 100vh; min-height: 100dvh;`"
+        ],
+        "H9": [
+          "PASS",
+          "`content-visibility: auto; contain-intrinsic-size: auto none auto 120px;`"
+        ],
+        "H10": [
+          "PASS",
+          "list built once into a DocumentFragment; filter only toggles `li.hidden` with no layout reads (no re-render)"
+        ],
+        "H11": [
+          "PASS",
+          "`<div id=\"guidelines\" ... popover>` + `popovertarget=\"guidelines\"`; document click handler only in no-popover fallback"
+        ],
+        "H12": [
+          "PASS",
+          "`.carousel-track svg { ... aspect-ratio: 4 / 3; }`"
+        ],
+        "H13": [
+          "PASS",
+          "no panel animation; marker CSS transition only; setTimeout is a scrollend fallback, not show/hide"
+        ],
+        "H14": [
+          "FAIL",
+          "no CSP"
+        ]
+      },
+      "B": {
+        "G1": [
+          "PASS",
+          "`<label for=\"rating-filter\">` + `<select id=\"rating-filter\">`"
+        ],
+        "G2": [
+          "PASS",
+          "`stars.setAttribute('role','img')` + `aria-label` `${r.rating} out of 5 stars`"
+        ],
+        "G3": [
+          "FAIL",
+          "text OK, but select border `2px solid var(--line)` #d4d2cc on #fbfaf7 = 1.45:1"
+        ],
+        "G4": [
+          "PASS",
+          "active marker becomes a 44px pill (`width:44px; border-radius:999px`); filled/outline stars"
+        ],
+        "G5": [
+          "PASS",
+          "`:is(button, select, [tabindex=\"0\"]):focus-visible { outline: 3px solid var(--accent) }`"
+        ],
+        "G6": [
+          "PASS",
+          "one h1 (in a header inside `<main>`), h2 sections, h3 reviews"
+        ],
+        "G7": [
+          "PASS",
+          "svgs `role=img aria-label`; region `aria-label=\"Aria One product images\"`; figures `aria-label=\"1 of 5\"`"
+        ],
+        "G8": [
+          "PASS",
+          "`<p ... id=\"review-count\" role=\"status\" aria-live=\"polite\">` 'Showing N of 300 reviews'"
+        ],
+        "G9": [
+          "PASS",
+          "markers 28px, arrows 48px, real buttons/select"
+        ],
+        "G10": [
+          "PASS",
+          "no evident errors; looping via CSS `order` with sibling-count fallback"
+        ]
+      },
+      "C": [
+        "Carousel logic is very complex (order-based looping, measure/reorder/compensate, pendingTarget state) and reads layout repeatedly; fragile.",
+        "Hero is a <header> placed inside <main>.",
+        "Non-standard `loading=\"lazy\"` on <video> with an IO fallback.",
+        "Good: native popover with no-popover fallback; content-visibility; status announcements."
+      ],
+      "scoreA": 12,
+      "scoreB": 9
+    },
+    "without-skill": {
+      "A": {
+        "H1": [
+          "PASS",
+          "`scroll-snap-type: x mandatory;` native overflow scrolling, no drag code"
+        ],
+        "H2": [
+          "PASS",
+          "`overscroll-behavior-x: contain;`"
+        ],
+        "H3": [
+          "PASS",
+          "prev/next `<button ... aria-label>`; dot buttons `aria-label=\"Show image i: label\"`, `aria-current` true/false"
+        ],
+        "H4": [
+          "PASS",
+          "JS `matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'`; CSS smooth overridden by `@media (prefers-reduced-motion: reduce){ scroll-behavior: auto !important }`"
+        ],
+        "H5": [
+          "PASS",
+          "`new IntersectionObserver(..., { root: track, threshold: [0.6] })`"
+        ],
+        "H6": [
+          "PASS",
+          "`<video src=\"/media/demo.mp4\" width=\"1280\" height=\"720\">` (+ wrapper aspect-ratio)"
+        ],
+        "H7": [
+          "FAIL",
+          "`font-display: swap` only; no metric-matched fallback"
+        ],
+        "H8": [
+          "PASS",
+          "`min-height: 100vh; min-height: 100svh;`"
+        ],
+        "H9": [
+          "PASS",
+          "`content-visibility: auto; contain-intrinsic-size: auto 120px;` (+ paging of 30)"
+        ],
+        "H10": [
+          "PASS",
+          "`listEl.replaceChildren(); ... frag ... listEl.appendChild(frag)`"
+        ],
+        "H11": [
+          "FAIL",
+          "custom absolute panel with `document.addEventListener('pointerdown', ...)`"
+        ],
+        "H12": [
+          "PASS",
+          "`.slide { aspect-ratio: 4 / 3; }`"
+        ],
+        "H13": [
+          "PASS",
+          "`gPanel.hidden = !open`, no animation/timers"
+        ],
+        "H14": [
+          "FAIL",
+          "no CSP"
+        ]
+      },
+      "B": {
+        "G1": [
+          "PASS",
+          "`<label for=\"rating-filter\">`"
+        ],
+        "G2": [
+          "PASS",
+          "`role=img aria-label=\"${r.rating} out of 5 stars\"`"
+        ],
+        "G3": [
+          "FAIL",
+          "`--star:#f5a623` glyphs on #f4f4f6 = 1.85:1; select/btn borders #d9d9e0 on #fff = 1.4:1"
+        ],
+        "G4": [
+          "PASS",
+          "active dot `transform: scale(1.25)`; filled/outline stars"
+        ],
+        "G5": [
+          "PASS",
+          "global `:focus-visible { outline: 3px solid var(--accent) }`"
+        ],
+        "G6": [
+          "PASS",
+          "one h1 (header), `<main>`, h2/h3 ordered"
+        ],
+        "G7": [
+          "PASS",
+          "slide svg `role=img aria-label`; region `aria-label`; slides `aria-label=\"1 of 5\"`"
+        ],
+        "G8": [
+          "PASS",
+          "`<p class=\"review-count\" ... aria-live=\"polite\">` updated with count"
+        ],
+        "G9": [
+          "PASS",
+          "dots 32px, buttons 48px"
+        ],
+        "G10": [
+          "PASS",
+          "no evident errors; load-more paging works"
+        ]
+      },
+      "C": [
+        "Star colour #f5a623 is a clear contrast failure for the rating glyphs.",
+        "Prev/next become disabled at the ends, dropping focus if it was on the button.",
+        "Count message lacks context ('N reviews', not 'of 300' / which rating).",
+        "Good: native scroll-snap + IO; paging plus content-visibility."
+      ],
+      "scoreA": 11,
+      "scoreB": 9
+    },
+    "web-quality-skills": {
+      "A": {
+        "H1": [
+          "PASS",
+          "`scroll-snap-type: x mandatory;` native scrolling"
+        ],
+        "H2": [
+          "PASS",
+          "`overscroll-behavior-x: contain;`"
+        ],
+        "H3": [
+          "PASS",
+          "`<button class=\"icon-btn\" ... aria-label=\"Previous image\">`; dots `<button ... aria-label=\"Show image 1: Front view\" aria-current=\"true\">`"
+        ],
+        "H4": [
+          "PASS",
+          "`behavior: reduceMotion.matches ? 'auto' : 'smooth'`; CSS smooth inside `no-preference`"
+        ],
+        "H5": [
+          "PASS",
+          "IntersectionObserver primary; scroll listener only in the `else` branch when IO is unsupported"
+        ],
+        "H6": [
+          "PASS",
+          "`<video ... width=\"1280\" height=\"720\">`"
+        ],
+        "H7": [
+          "FAIL",
+          "`font-display: swap` but no font-size-adjust/size-adjust fallback"
+        ],
+        "H8": [
+          "PASS",
+          "`min-height: calc(100svh - var(--header-h))` with vh fallback"
+        ],
+        "H9": [
+          "PASS",
+          "`content-visibility: auto; contain-intrinsic-size: auto 7rem;`"
+        ],
+        "H10": [
+          "PASS",
+          "filter is one write `reviewList.dataset.filter = value` with CSS hiding; initial render chunked with `scheduler.yield()`"
+        ],
+        "H11": [
+          "FAIL",
+          "custom `.panel{position:absolute}` with `document.addEventListener('pointerdown', ...)`"
+        ],
+        "H12": [
+          "PASS",
+          "`<svg width=\"400\" height=\"300\" ...>` + `aspect-ratio: 4 / 3`"
+        ],
+        "H13": [
+          "PASS",
+          "`guidelinesPanel.hidden = true/false`, no animation/timers"
+        ],
+        "H14": [
+          "PASS",
+          "`<meta http-equiv=\"Content-Security-Policy\" content=\"default-src 'self'; script-src 'sha256-...'...\">` (hashes verified to match)"
+        ]
+      },
+      "B": {
+        "G1": [
+          "PASS",
+          "`<label for=\"rating-filter\">`"
+        ],
+        "G2": [
+          "PASS",
+          "`role=img aria-label=\"${review.rating} out of 5 stars\"`"
+        ],
+        "G3": [
+          "PASS",
+          "select/icon-btn borders `var(--text)` #1c1b1a; muted 6.9:1; star #b45309 5.0:1"
+        ],
+        "G4": [
+          "PASS",
+          "active dot filled vs hollow ring + `scale(1.25)`; filled/outline stars"
+        ],
+        "G5": [
+          "PASS",
+          "global `:focus-visible { outline: 3px solid var(--accent) }`"
+        ],
+        "G6": [
+          "PASS",
+          "one h1; header/nav/main/footer; ordered h2/h3"
+        ],
+        "G7": [
+          "PASS",
+          "svg `role=img aria-labelledby` <title>; carousel `aria-labelledby=gallery-title`; slides `aria-label=\"1 of 5\"`"
+        ],
+        "G8": [
+          "PASS",
+          "`<p ... id=\"review-count\" role=\"status\">` 'Showing 150 of 300 reviews with 5 stars'"
+        ],
+        "G9": [
+          "PASS",
+          "dots 44px, icon buttons 48px, select 48px"
+        ],
+        "G10": [
+          "PASS",
+          "CSP hashes match the inline style/script; no innerHTML under Trusted Types; no errors"
+        ]
+      },
+      "C": [
+        "Strong: hash-based CSP with Trusted Types, JSON-LD, skip link, chunked yielding render.",
+        "Rating counts are hard-coded (RATING_COUNTS) rather than computed, though the generator honours them.",
+        "Guidelines panel is a custom overlay rather than popover.",
+        "No metric-matched font fallback."
+      ],
+      "scoreA": 12,
+      "scoreB": 10
+    },
+    "frontend-design": {
+      "A": {
+        "H1": [
+          "PASS",
+          "`.track{scroll-snap-type:x mandatory; overflow-x:auto}`; no drag code"
+        ],
+        "H2": [
+          "PASS",
+          "`overscroll-behavior-x: contain;`"
+        ],
+        "H3": [
+          "PASS",
+          "`<button class=\"arrow\" ... aria-label=\"Previous photo\">`; dot buttons `aria-label=\"Show photo i: label\"` with `aria-current`"
+        ],
+        "H4": [
+          "PASS",
+          "`behavior: reduceMotion.matches ? \"auto\" : \"smooth\"`; CSS smooth in `no-preference`"
+        ],
+        "H5": [
+          "PASS",
+          "IntersectionObserver primary; scroll fallback only when IO is missing"
+        ],
+        "H6": [
+          "PASS",
+          "`<video ... width=\"1280\" height=\"720\">`"
+        ],
+        "H7": [
+          "PASS",
+          "`@font-face { font-family: \"Brand Sans Fallback\"; size-adjust: 100%; ascent-override: 92%; ... }` + `font-display: swap`"
+        ],
+        "H8": [
+          "PASS",
+          "`min-height: 100vh; min-height: 100svh;`"
+        ],
+        "H9": [
+          "PASS",
+          "`content-visibility: auto; contain-intrinsic-size: auto 140px;`"
+        ],
+        "H10": [
+          "PASS",
+          "`frag.appendChild(nodes[i]) ... list.replaceChildren(frag)`"
+        ],
+        "H11": [
+          "PASS",
+          "`<div ... popover>` + `popovertarget=\"guidelines\"`; document handler only in fallback"
+        ],
+        "H12": [
+          "PASS",
+          "`.slide { aspect-ratio: 4 / 3; }`"
+        ],
+        "H13": [
+          "PASS",
+          "CSS-only `@keyframes draw` and dot transitions; no JS timers for show/hide"
+        ],
+        "H14": [
+          "FAIL",
+          "no CSP"
+        ]
+      },
+      "B": {
+        "G1": [
+          "PASS",
+          "`<fieldset><legend>Filter by rating</legend>` with radio `<input>` inside `<label class=\"chip\">`"
+        ],
+        "G2": [
+          "PASS",
+          "`<span class=\"stars\" role=\"img\" aria-label=\"${r.rating} out of 5 stars\">`"
+        ],
+        "G3": [
+          "FAIL",
+          "chip/arrow/btn-quiet borders `--line:#D3D7DE` on #fff = 1.44:1; inactive dots same"
+        ],
+        "G4": [
+          "FAIL",
+          "off-stars are the same filled glyph differing only in colour (`.stars .off { color: var(--line) }`); selected chip shown only by fill colour (radio visually hidden)"
+        ],
+        "G5": [
+          "PASS",
+          "global `:focus-visible` + `.chip input:focus-visible + span { outline ... }`"
+        ],
+        "G6": [
+          "PASS",
+          "one h1 (hero header), `<main>`, h2/h3 ordered"
+        ],
+        "G7": [
+          "PASS",
+          "slides `aria-label=\"1 of 5: Front view\"`, svg `role=img aria-label`; track `aria-label` (outer div's aria-label has no role, borderline)"
+        ],
+        "G8": [
+          "PASS",
+          "`<p class=\"result-count\" role=\"status\" aria-live=\"polite\">`"
+        ],
+        "G9": [
+          "PASS",
+          "radio inputs, dots 44px, arrows 48px, close 40px"
+        ],
+        "G10": [
+          "PASS",
+          "no evident errors"
+        ]
+      },
+      "C": [
+        "Carousel wrapper `<div aria-roledescription=\"carousel\" aria-label>` has no role, so its name is dropped; li role=group breaks list semantics.",
+        "Popover is repositioned by a window scroll listener that reads getBoundingClientRect (layout read on every scroll).",
+        "`size-adjust: 100%` is a no-op; override values are guesses for an unknown font.",
+        "Good: distinctive design, native popover, metric-override fallback face, fieldset/legend filter."
+      ],
+      "scoreA": 13,
+      "scoreB": 8
+    },
+    "modern-web-pitfalls": {
+      "A": {
+        "H1": [
+          "PASS",
+          "`.track{scroll-snap-type:x mandatory}`; no drag code"
+        ],
+        "H2": [
+          "PASS",
+          "`overscroll-behavior-x: contain;`"
+        ],
+        "H3": [
+          "PASS",
+          "`<button ... id=\"prev\" aria-label=\"Previous image\">`; dot buttons `aria-label=\"Image 1\" aria-current=\"true\"` with roving tabindex"
+        ],
+        "H4": [
+          "PASS",
+          "`scrollBehavior = () => (reducedMotion.matches ? 'auto' : 'smooth')`; CSS smooth in `no-preference`"
+        ],
+        "H5": [
+          "PASS",
+          "`new IntersectionObserver(..., { root: track, threshold: 0.6 })`, no scroll listener"
+        ],
+        "H6": [
+          "PASS",
+          "`<video width=\"1280\" height=\"720\">` + `aspect-ratio: 16 / 9`"
+        ],
+        "H7": [
+          "PASS",
+          "`font-size-adjust: 0.52;` + `font-display: swap`"
+        ],
+        "H8": [
+          "PASS",
+          "`min-height: 100svh;`"
+        ],
+        "H9": [
+          "PASS",
+          "`content-visibility: auto; contain-intrinsic-size: auto 128px;`"
+        ],
+        "H10": [
+          "PASS",
+          "render chunked with DocumentFragment + `scheduler.yield()`; filter yields, then toggles `li.hidden` with no layout reads"
+        ],
+        "H11": [
+          "PASS",
+          "`<div id=\"guidelines\" ... popover>` + `popovertarget=\"guidelines\"`; CSS anchor positioning"
+        ],
+        "H12": [
+          "PASS",
+          "`<svg ... width=\"800\" height=\"500\">` with `height:auto`"
+        ],
+        "H13": [
+          "PASS",
+          "`transition: opacity .18s, overlay .18s allow-discrete, display .18s allow-discrete;` + `@starting-style`"
+        ],
+        "H14": [
+          "PASS",
+          "`<meta http-equiv=\"Content-Security-Policy\" content=\"default-src 'none'; script-src 'sha256-...'\">` (hashes verified to match)"
+        ]
+      },
+      "B": {
+        "G1": [
+          "PASS",
+          "`<label for=\"rating-filter\">`"
+        ],
+        "G2": [
+          "PASS",
+          "visually-hidden `Rated ${r.rating} out of 5 stars`"
+        ],
+        "G3": [
+          "PASS",
+          "`--control-edge:#6f737c` 4.75:1 on #fff; muted 6.2:1; star 5.9:1; dark tokens also pass"
+        ],
+        "G4": [
+          "PASS",
+          "active dot filled AND larger (16px vs 12px); filled/outline stars; native select"
+        ],
+        "G5": [
+          "PASS",
+          "global `:focus-visible { outline: 3px solid var(--focus) }`"
+        ],
+        "G6": [
+          "PASS",
+          "one h1, `<main>`, ordered h2/h3"
+        ],
+        "G7": [
+          "PASS",
+          "hero/slide svgs `role=img aria-label`; region `aria-labelledby=gallery-title`; slides `aria-label=\"1 of 5\"`"
+        ],
+        "G8": [
+          "PASS",
+          "`<p ... id=\"review-count\" role=\"status\" aria-live=\"polite\">` 'Showing N reviews with X stars.'"
+        ],
+        "G9": [
+          "PASS",
+          "dots 32px, nav 44px, btn min 44px"
+        ],
+        "G10": [
+          "PASS",
+          "CSP hashes match; no errors evident"
+        ]
+      },
+      "C": [
+        "Strongest overall: popover with @starting-style, anchor positioning, light-dark() tokens, forced-colors and prefers-contrast support.",
+        "font-size-adjust 0.52 is a placeholder (the comment says it must be measured).",
+        "Dot labels 'Image 1' do not describe the slide.",
+        "Filter is not a single batched write, but it yields first and reads no layout."
+      ],
+      "scoreA": 14,
+      "scoreB": 10
+    }
+  }
+}

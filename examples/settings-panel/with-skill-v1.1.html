@@ -1,0 +1,440 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Settings Panel</title>
+  <!--
+    Recommended CSP (not enabled here because the inline hashes have not been computed/verified;
+    a wrong hash would block the scripts entirely). Compute sha256 of the exact bytes inside each
+    <script> and <style> element, then enable:
+    <meta http-equiv="Content-Security-Policy"
+          content="default-src 'none'; script-src 'sha256-HEAD_SCRIPT' 'sha256-MAIN_SCRIPT'; style-src 'sha256-STYLE'; img-src 'self' data:; base-uri 'none'; form-action 'self'; object-src 'none'; require-trusted-types-for 'script'">
+    (No innerHTML is used, so require-trusted-types-for 'script' is safe to turn on.)
+  -->
+  <script>
+    // Apply a saved theme before first paint. 'light' | 'dark' | absent (= follow system).
+    try {
+      const t = localStorage.getItem('theme');
+      if (t === 'light' || t === 'dark') document.documentElement.style.colorScheme = t;
+    } catch (e) { /* storage blocked: follow system */ }
+  </script>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg:           light-dark(#f6f6f8, #121216);
+      --surface:      light-dark(#ffffff, #1d1d23);
+      --text:         light-dark(#1a1a1a, #ececf0);  /* ~17:1 / ~14:1 */
+      --muted:        light-dark(#545862, #a9acb4);  /* >= 4.5:1 on surface and bg */
+      --control-edge: light-dark(#6f737c, #8d919a);  /* >= 3:1 on surface: input borders */
+      --accent:       light-dark(#3a3fbf, #a9adff);  /* >= 4.5:1 on surface */
+      --on-accent:    light-dark(#ffffff, #15163a);
+      --danger:       light-dark(#b42318, #ff8b80);  /* >= 4.5:1 for error text */
+      --success:      light-dark(#1d6b35, #7ad69a);
+      --focus:        light-dark(#1a1a1a, #ffffff);  /* focus ring, >= 3:1 everywhere */
+      --hero-a:       light-dark(#e7e8ff, #1c1d3a);
+      --hero-b:       light-dark(#f6f6f8, #121216);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.5;
+    }
+    @media (prefers-contrast: more) {
+      :root {
+        --muted: light-dark(#33363d, #d0d2d8);
+        --control-edge: light-dark(#33363d, #d0d2d8);
+      }
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); }
+
+    :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+
+    .visually-hidden {
+      position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+      overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+    }
+
+    /* ---------- Hero ---------- */
+    .hero {
+      min-height: 100svh;           /* stable full height on mobile, no bare vh */
+      display: grid;
+      place-content: center;
+      justify-items: center;
+      gap: 1.25rem;
+      padding: 2rem 1rem;
+      text-align: center;
+      background: radial-gradient(circle at 30% 20%, var(--hero-a), var(--hero-b) 70%);
+    }
+    .hero h1 { font-size: clamp(2rem, 6vw, 3.5rem); margin: 0; line-height: 1.1; }
+    .hero p { margin: 0; color: var(--muted); max-width: 40ch; }
+
+    /* ---------- Buttons ---------- */
+    button {
+      font: inherit;
+      touch-action: manipulation;
+      cursor: pointer;
+      min-height: 44px;
+      min-width: 44px;
+      border-radius: 10px;
+      padding: 0.6rem 1.2rem;
+      border: 2px solid transparent;
+    }
+    .btn-primary { background: var(--accent); color: var(--on-accent); font-weight: 600; }
+    .btn-secondary { background: transparent; color: var(--text); border-color: var(--control-edge); }
+    .icon-btn {
+      background: transparent; color: var(--text); padding: 0;
+      display: inline-grid; place-items: center; border-color: var(--control-edge);
+    }
+
+    /* ---------- Dialog + open/close animation (pure CSS) ---------- */
+    dialog {
+      width: min(32rem, calc(100% - 2rem));
+      max-height: 90dvh;
+      overflow: auto;
+      overscroll-behavior: contain;   /* no page scroll lock hacks */
+      padding: 1.5rem;
+      border: 1px solid var(--control-edge);
+      border-radius: 16px;
+      background: var(--surface);
+      color: var(--text);
+      box-shadow: 0 20px 50px rgb(0 0 0 / 0.25);
+
+      opacity: 0;
+      transition: opacity .2s ease, translate .2s ease, scale .2s ease,
+                  overlay .2s allow-discrete, display .2s allow-discrete;
+    }
+    dialog[open] {
+      opacity: 1;
+      @starting-style { opacity: 0; }
+    }
+    dialog::backdrop {
+      background: rgb(0 0 0 / 0);
+      transition: background-color .2s, overlay .2s allow-discrete, display .2s allow-discrete;
+    }
+    dialog[open]::backdrop {
+      background: rgb(0 0 0 / .45);
+      @starting-style { background: rgb(0 0 0 / 0); }
+    }
+    /* Movement only for people who haven't asked for reduced motion; the fade stays for everyone */
+    @media (prefers-reduced-motion: no-preference) {
+      dialog { translate: 0 12px; scale: 0.97; }
+      dialog[open] {
+        translate: 0 0; scale: 1;
+        @starting-style { translate: 0 12px; scale: 0.97; }
+      }
+    }
+
+    .dialog-header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; }
+    .dialog-header h2 { margin: 0; font-size: 1.35rem; }
+
+    fieldset { border: 0; padding: 0; margin: 0 0 1.5rem; min-width: 0; }
+    legend { font-weight: 600; padding: 0; margin-bottom: 0.5rem; }
+
+    /* ---------- Theme segmented control (radio group: native arrow-key roving) ---------- */
+    .segmented {
+      display: inline-flex;
+      border: 1px solid var(--control-edge);
+      border-radius: 10px;
+      padding: 3px;
+      gap: 3px;
+    }
+    .segmented input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+    .segmented label {
+      min-height: 44px; min-width: 64px;
+      display: inline-flex; align-items: center; justify-content: center; gap: 0.35rem;
+      padding: 0 0.9rem;
+      border-radius: 7px;
+      cursor: pointer;
+      color: var(--text);
+      border: 2px solid transparent;
+    }
+    .segmented .check { visibility: hidden; }               /* non-colour cue for "selected" */
+    .segmented input:checked + label {
+      background: var(--accent); color: var(--on-accent); font-weight: 600;
+    }
+    .segmented input:checked + label .check { visibility: visible; }
+    .segmented input:focus-visible + label { outline: 3px solid var(--focus); outline-offset: 2px; }
+
+    /* ---------- Form ---------- */
+    .field { margin-bottom: 0.75rem; }
+    .field label { display: block; font-weight: 600; }
+    .req { color: var(--danger); }
+    .hint { margin: 0.15rem 0 0.35rem; color: var(--muted); font-size: 0.9rem; }
+    .form-note { color: var(--muted); font-size: 0.9rem; margin: 0 0 1rem; }
+    input[type="email"], input[type="text"] {
+      font: inherit;
+      width: 100%;
+      min-height: 44px;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid var(--control-edge);
+      border-radius: 8px;
+      background: var(--surface);
+      color: var(--text);
+    }
+    #cc-exp { max-width: 9rem; }
+    input:user-invalid,
+    input[aria-invalid="true"] {
+      border-color: var(--danger);
+      box-shadow: inset 0 0 0 1px var(--danger);   /* weight change, no layout shift */
+    }
+    input:autofill { box-shadow: inset 4px 0 0 var(--accent); }
+
+    /* Error slot reserves its space so validation never shifts layout */
+    .error-slot { min-height: 1.6rem; margin-top: 0.25rem; }
+    .error {
+      margin: 0;
+      display: flex; align-items: flex-start; gap: 0.35rem;
+      color: var(--danger); font-size: 0.9rem; font-weight: 600;
+    }
+    .error[hidden] { display: none; }
+    .error svg { flex: none; margin-top: 0.2rem; }
+
+    .actions { display: flex; gap: 0.75rem; justify-content: flex-end; flex-wrap: wrap; margin-top: 0.5rem; }
+    .status { min-height: 1.5rem; margin: 0.75rem 0 0; color: var(--success); font-weight: 600; }
+
+    @media (forced-colors: active) {
+      .segmented input:checked + label { outline: 2px solid CanvasText; }
+      input:user-invalid, input[aria-invalid="true"] { outline: 2px solid Mark; }
+      .error svg { forced-color-adjust: auto; }
+      dialog { border: 2px solid CanvasText; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="hero" aria-labelledby="hero-title">
+      <h1 id="hero-title">Your account</h1>
+      <p>Change the appearance and update your contact and payment details.</p>
+      <button type="button" class="btn-primary" id="open-settings" aria-haspopup="dialog">Settings</button>
+    </section>
+  </main>
+
+  <dialog id="settings" aria-labelledby="settings-title" closedby="any">
+    <div class="dialog-header">
+      <h2 id="settings-title">Settings</h2>
+      <form method="dialog">
+        <button class="icon-btn" aria-label="Close settings">
+          <svg aria-hidden="true" width="18" height="18" viewBox="0 0 18 18"><path d="M4 4l10 10M14 4L4 14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
+      </form>
+    </div>
+
+    <fieldset>
+      <legend>Theme</legend>
+      <div class="segmented" id="theme-control">
+        <input type="radio" name="theme" id="theme-light" value="light">
+        <label for="theme-light"><span class="check" aria-hidden="true">&#10003;</span>Light</label>
+        <input type="radio" name="theme" id="theme-dark" value="dark">
+        <label for="theme-dark"><span class="check" aria-hidden="true">&#10003;</span>Dark</label>
+        <input type="radio" name="theme" id="theme-system" value="system">
+        <label for="theme-system"><span class="check" aria-hidden="true">&#10003;</span>System</label>
+      </div>
+    </fieldset>
+
+    <form id="details-form" action="#" aria-labelledby="details-title">
+      <h3 id="details-title" style="margin:0 0 .25rem;font-size:1.05rem">Contact and payment</h3>
+      <p class="form-note">Fields marked <span class="req" aria-hidden="true">*</span><span class="visually-hidden">with an asterisk</span> are required.</p>
+
+      <div class="field">
+        <label for="email">Email address <span class="req" aria-hidden="true">*</span></label>
+        <p class="hint" id="email-hint">We'll send receipts here.</p>
+        <input id="email" name="email" type="email" required
+               autocomplete="email" spellcheck="false" autocapitalize="off"
+               aria-describedby="email-hint email-error">
+        <div class="error-slot">
+          <p class="error" id="email-error" hidden>
+            <svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="currentColor"/><path d="M8 4v5M8 11.5v.5" stroke="Canvas" stroke-width="1.6" stroke-linecap="round"/></svg>
+            <span><span class="visually-hidden">Error:</span> <span class="msg"></span></span>
+          </p>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="cc-exp">Card expiry date <span class="req" aria-hidden="true">*</span></label>
+        <p class="hint" id="cc-exp-hint">Format: MM/YY, for example 04/28</p>
+        <input id="cc-exp" name="cc-exp" type="text" required
+               autocomplete="cc-exp" inputmode="numeric" maxlength="5"
+               pattern="[0-9]{2}/[0-9]{2}" spellcheck="false" autocapitalize="off"
+               aria-describedby="cc-exp-hint cc-exp-error">
+        <div class="error-slot">
+          <p class="error" id="cc-exp-error" hidden>
+            <svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="currentColor"/><path d="M8 4v5M8 11.5v.5" stroke="Canvas" stroke-width="1.6" stroke-linecap="round"/></svg>
+            <span><span class="visually-hidden">Error:</span> <span class="msg"></span></span>
+          </p>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button type="button" class="btn-secondary" id="cancel">Cancel</button>
+        <button type="submit" class="btn-primary">Save</button>
+      </div>
+      <!-- Live region lives inside the dialog, because the rest of the page is inert -->
+      <p class="status" id="status" role="status" aria-live="polite"></p>
+    </form>
+  </dialog>
+
+  <script>
+    (() => {
+      const root = document.documentElement;
+      const dialog = document.getElementById('settings');
+      const openBtn = document.getElementById('open-settings');
+      const cancelBtn = document.getElementById('cancel');
+      const form = document.getElementById('details-form');
+      const status = document.getElementById('status');
+
+      /* ---------------- Dialog ---------------- */
+      // showModal(): top layer, inert background, focus trap, Esc to close, focus restored to trigger.
+      openBtn.addEventListener('click', () => {
+        status.textContent = '';
+        dialog.showModal();
+      });
+      cancelBtn.addEventListener('click', () => dialog.close());
+
+      // Light dismiss: native closedby="any" where supported; otherwise a backdrop click
+      // that checks the bounding box so clicks on the dialog's own padding don't close it.
+      if (!('closedBy' in HTMLDialogElement.prototype)) {
+        dialog.addEventListener('click', (e) => {
+          if (e.target !== dialog) return;
+          const r = dialog.getBoundingClientRect();
+          const inside = e.clientX >= r.left && e.clientX <= r.right &&
+                         e.clientY >= r.top && e.clientY <= r.bottom;
+          // Keyboard-triggered clicks report 0,0; ignore those.
+          if (!inside && (e.clientX !== 0 || e.clientY !== 0)) dialog.close();
+        });
+      }
+
+      /* ---------------- Theme (Light / Dark / System) ---------------- */
+      const radios = [...document.querySelectorAll('input[name="theme"]')];
+      const readTheme = () => {
+        try {
+          const t = localStorage.getItem('theme');
+          return t === 'light' || t === 'dark' ? t : 'system';
+        } catch { return 'system'; }
+      };
+      const reflect = (value) => {
+        root.style.colorScheme = value === 'system' ? '' : value;
+        radios.forEach((r) => { r.checked = r.value === value; });
+      };
+      const applyTheme = (value) => {
+        try {
+          if (value === 'system') localStorage.removeItem('theme');
+          else localStorage.setItem('theme', value);
+        } catch { /* storage unavailable: still apply for this session */ }
+        reflect(value);
+      };
+      reflect(readTheme());
+      radios.forEach((r) => r.addEventListener('change', () => { if (r.checked) applyTheme(r.value); }));
+      // Keep other open tabs in sync
+      addEventListener('storage', (e) => {
+        if (e.key === 'theme' || e.key === null) reflect(readTheme());
+      });
+
+      /* ---------------- Form validation ---------------- */
+      const email = document.getElementById('email');
+      const exp = document.getElementById('cc-exp');
+      const inputs = [email, exp];
+
+      const supportsUserInvalid = (() => {
+        try { document.createElement('input').matches(':user-invalid'); return true; }
+        catch { return false; }
+      })();
+      const interacted = new WeakSet(); // fallback only
+
+      // One specific message per failure, via the Constraint Validation API
+      function validateEmail() {
+        email.setCustomValidity('');
+        const v = email.validity;
+        if (v.valueMissing) return 'Enter your email address.';
+        if (v.typeMismatch) return 'Enter an email address in the format name@example.com.';
+        const domain = email.value.split('@')[1] || '';
+        if (!domain.includes('.')) {
+          const msg = 'Add the domain ending, for example name@example.com.';
+          email.setCustomValidity(msg);
+          return msg;
+        }
+        return '';
+      }
+
+      function validateExpiry() {
+        exp.setCustomValidity('');
+        const v = exp.validity;
+        if (v.valueMissing) return 'Enter the expiry date shown on your card.';
+        if (v.patternMismatch) return 'Enter the expiry date as MM/YY, for example 04/28.';
+        const [mm, yy] = exp.value.split('/').map(Number);
+        let msg = '';
+        if (mm < 1 || mm > 12) {
+          msg = 'The month must be between 01 and 12.';
+        } else {
+          const now = new Date();
+          const year = 2000 + yy;
+          // A card is valid through the last day of its expiry month
+          const expiresAfter = new Date(year, mm, 1);
+          if (expiresAfter <= now) {
+            msg = `This card expired in ${exp.value}. Use a card that hasn't expired.`;
+          } else if (year > now.getFullYear() + 20) {
+            msg = 'That expiry year is more than 20 years away. Check the year on your card.';
+          }
+        }
+        if (msg) exp.setCustomValidity(msg);
+        return msg;
+      }
+
+      const validators = new Map([[email, validateEmail], [exp, validateExpiry]]);
+
+      // Show the error only when :user-invalid applies, and keep aria-invalid in step with it.
+      function sync(input) {
+        const message = validators.get(input)();
+        const shown = supportsUserInvalid
+          ? input.matches(':user-invalid')
+          : interacted.has(input) && !!message;
+        input.setAttribute('aria-invalid', String(shown));
+        const err = document.getElementById(`${input.id}-error`);
+        err.querySelector('.msg').textContent = shown ? message : '';
+        err.hidden = !shown;
+      }
+
+      // Expiry: insert the slash as people type digits, without fighting deletion.
+      exp.addEventListener('input', (e) => {
+        if (e.inputType && e.inputType.startsWith('delete')) return;
+        let digits = exp.value.replace(/[^0-9]/g, '');
+        if (digits.length === 1 && Number(digits) > 1) digits = '0' + digits; // "4" -> "04/"
+        if (digits.length >= 2) exp.value = digits.slice(0, 2) + '/' + digits.slice(2, 4);
+        else exp.value = digits;
+      });
+
+      for (const input of inputs) {
+        input.addEventListener('input', () => { status.textContent = ''; sync(input); });
+        input.addEventListener('change', () => { interacted.add(input); sync(input); });
+      }
+
+      // Native submit validation: suppress the browser bubble (we render our own message),
+      // then sync all fields once :user-invalid applies and focus the first invalid one.
+      let pendingFocus = false;
+      form.addEventListener('invalid', (e) => {
+        e.preventDefault();
+        if (pendingFocus) return;
+        pendingFocus = true;
+        requestAnimationFrame(() => {
+          inputs.forEach((i) => { interacted.add(i); sync(i); });
+          const first = inputs.find((i) => !i.validity.valid);
+          first?.focus();
+          pendingFocus = false;
+        });
+      }, true);
+
+      // Run custom checks before the browser's constraint validation on submit
+      form.querySelector('button[type="submit"]').addEventListener('click', () => {
+        inputs.forEach((i) => validators.get(i)());
+      });
+
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        inputs.forEach(sync);
+        if (!form.checkValidity()) return;
+        // Card details are deliberately not stored client-side.
+        status.textContent = `Saved. Receipts will go to ${email.value}.`;
+      });
+    })();
+  </script>
+</body>
+</html>
