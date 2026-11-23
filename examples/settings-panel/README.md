@@ -1,7 +1,7 @@
-# Before / after: settings panel
+# Head-to-head: settings panel
 
-The same prompt went to two fresh Claude agents (Claude Opus 5.5, November 2026). One had no
-skill. The other read `modern-web-pitfalls` first. Nothing else differed.
+The same prompt went to six fresh Claude agents (Claude Opus 5.5, November 2026). Each had one web
+skill installed, or none. Nothing else differed.
 
 > Build a single-file page (plain HTML/CSS/JS, no frameworks or external libraries) with:
 > - A full-height hero section at the top with a "Settings" button.
@@ -10,50 +10,88 @@ skill. The other read `modern-web-pitfalls` first. Nothing else differed.
 >   with an email field and a card expiry field (MM/YY) with validation and helpful error messages,
 >   plus a Save button.
 
-- Without the skill: [`without-skill.html`](without-skill.html)
-- With the skill: [`with-skill.html`](with-skill.html)
+## Results
+
+| Skill | Page | Part A: modern platform (17) | Part B: quality basics (10) | Total (27) |
+|---|---|:-:|:-:|:-:|
+| modern-web-pitfalls (this repo) | [`with-skill.html`](with-skill.html) | **17** | 9 | **26** |
+| [Modern Web Guidance](https://github.com/GoogleChrome/modern-web-guidance) | [`modern-web-guidance.html`](modern-web-guidance.html) | 14 | **10** | 24 |
+| [Web Quality Skills](https://github.com/addyosmani/web-quality-skills) | [`web-quality-skills.html`](web-quality-skills.html) | 10 | **10** | 20 |
+| *No skill* | [`without-skill.html`](without-skill.html) | 6 | 8 | 14 |
+| [Vercel web-design-guidelines](https://github.com/vercel-labs/agent-skills) | [`vercel-web-design-guidelines.html`](vercel-web-design-guidelines.html) | 7 | 7 | 14 |
+| [frontend-design](https://github.com/anthropics/skills) | [`frontend-design.html`](frontend-design.html) | 5 | 8 | 13 |
+
+**Part A is this repo's own checklist**, so this skill is expected to top it. Part B is a set of
+general basics that no skill owns: labels, keyboard use, contrast, error announcements, input types,
+expiry edge cases, theme flash and bugs. On Part B, the official Modern Web Guidance and Web Quality
+Skills both scored 10/10 and beat this skill.
+
+### What each run showed
+
+- **modern-web-pitfalls:** passed every Part A check. It failed **B6 contrast**: the input borders
+  are about 1.6:1 in light mode and 2.2:1 in dark mode, below the 3:1 that WCAG 1.4.11 requires.
+  That rule has since been added to the skill's checklist, but the test hasn't been re-run.
+- **Modern Web Guidance:** the most complete page overall, with a System/Light/Dark control,
+  `light-dark()`, `:user-invalid`, `closedby` and icon-plus-text errors. It failed A11 only because
+  it adds a JS exit-animation path for browsers that can't animate the close natively. That's
+  arguably good engineering, and the strict rubric still marks it FAIL. It also failed A15 (no
+  `:autofill` cue) and A17 (no CSP).
+- **Web Quality Skills:** perfect on the basics. It set a hash-based CSP with Trusted Types, and
+  the hashes check out. It also had forced-colours support and 44px touch targets. On the modern
+  platform checks it mostly used older patterns: a JS class plus `animationend`, a `0.01ms`
+  reduced-motion override, no `:user-invalid` and no System option.
+- **No skill:** clean, working code, with a native `<dialog>` and `dvh`. The gaps are the patterns
+  the Chrome article describes: JS-driven animation, a `0.01ms` override, a binary theme toggle and
+  errors shown by colour alone.
+- **Vercel web-design-guidelines:** the agent fixed 35 review findings (copy, focus, `aria-live`,
+  URL state). It also introduced a **real bug**: the backdrop handler checks
+  `e.target === dialog`, so clicking inside the dialog's own padding closes it. The skill is built
+  for reviewing UI polish, not for choosing platform APIs.
+- **frontend-design:** by far the most distinctive design, a botanical theme with a serif display
+  font. Platform correctness isn't its goal, and it scored that way. Pair it with one of the others.
 
 ## Screenshots
 
-Both pages after clicking **Save** on an empty form, rendered in headless Chrome at 900×760.
+Each page after clicking **Save** on an empty form, rendered in headless Chrome at 900×760.
 
-| | Without skill | With skill |
+| | Light | Dark |
 |---|---|---|
-| Light | ![Without skill, light](../../docs/screenshots/without-skill-light.png) | ![With skill, light](../../docs/screenshots/with-skill-light.png) |
-| Dark | ![Without skill, dark](../../docs/screenshots/without-skill-dark.png) | ![With skill, dark](../../docs/screenshots/with-skill-dark.png) |
+| No skill | ![](../../docs/screenshots/without-skill-light.png) | ![](../../docs/screenshots/without-skill-dark.png) |
+| modern-web-pitfalls | ![](../../docs/screenshots/with-skill-light.png) | ![](../../docs/screenshots/with-skill-dark.png) |
+| Modern Web Guidance | ![](../../docs/screenshots/modern-web-guidance-light.png) | ![](../../docs/screenshots/modern-web-guidance-dark.png) |
+| Web Quality Skills | ![](../../docs/screenshots/web-quality-skills-light.png) | ![](../../docs/screenshots/web-quality-skills-dark.png) |
+| Vercel guidelines | ![](../../docs/screenshots/vercel-web-design-guidelines-light.png) | ![](../../docs/screenshots/vercel-web-design-guidelines-dark.png) |
+| frontend-design | ![](../../docs/screenshots/frontend-design-light.png) | ![](../../docs/screenshots/frontend-design-dark.png) |
 
-The visible differences are the **System** theme option, a ⚠ icon on errors (so they don't rely on
-colour alone) and a hint above the email field. The rest of the improvements are in the code and
-are listed below.
+## Method
 
-## Result: 6 / 17 → 17 / 17 checklist items
+1. **Build.** Every agent got the prompt above with one skill's files available locally. Each skill
+   was used the way its docs describe:
+   - **modern-web-pitfalls, frontend-design:** read the skill, then build.
+   - **Modern Web Guidance:** follow its search, retrieve and verify workflow. Its `npx` CLI needs
+     Node.js, which wasn't available, so the agent searched and read the **same bundled guide files**
+     directly. It read 10 guides.
+   - **Vercel web-design-guidelines:** a review skill. Build, review against its pinned rules
+     (`command.md`), then fix every finding.
+   - **Web Quality Skills:** read the relevant skills, build, audit with `web-quality-audit` by
+     reading the code (Lighthouse couldn't run), then fix the findings.
+   - **No skill:** the prompt only.
+2. **Blind grading.** The six files were copied under shuffled names (`page-P` … `page-U`) and
+   graded by a separate agent that didn't know which skill made which page. It used a fixed
+   [rubric](grading/RUBRIC.md) and quoted code for every verdict. The full verdicts and the ID
+   mapping are in [`grading/results.json`](grading/results.json).
+3. **Sanity checks.** The Web Quality Skills page sets a hash-based CSP. Its SHA-256 hashes were
+   recomputed independently and match. (`.gitattributes` keeps these files on LF line endings so
+   the hashes stay valid.) To take its screenshots, the CSP was removed from a temporary copy so the
+   screenshot script could open the dialog. The file in this folder is unchanged.
 
-| Check (from the skill's checklist) | Without | With |
-|---|:-:|:-:|
-| Modal is a native `<dialog>` opened with `showModal()` | ✅ | ✅ |
-| Focus returns to the trigger on close | ✅ | ✅ |
-| `color-scheme` set in CSS (native controls follow the theme) | ✅ | ✅ |
-| `aria-invalid` matches the visible error | ✅ | ✅ |
-| Format hint is visible text above the input, linked with `aria-describedby` | ✅ | ✅ |
-| Full-height hero uses `dvh`/`svh`, not bare `vh` | ✅ | ✅ |
-| `<meta name="color-scheme" content="light dark">` in `<head>` | ❌ | ✅ |
-| Theme tokens use `light-dark()` | ❌ | ✅ |
-| Theme control has a **System** option | ❌ | ✅ |
-| Other tabs stay in sync (`storage` event) | ❌ | ✅ |
-| Open/close animated in pure CSS (`@starting-style`, `allow-discrete`) | ❌ class toggle + `animationend` + `setTimeout` fallback | ✅ |
-| Movement opted **into** with `prefers-reduced-motion: no-preference` | ❌ `0.01ms` duration override | ✅ |
-| Native light dismiss (`closedby="any"`) with a fallback | ❌ manual backdrop hit-test only | ✅ |
-| Errors shown via `:user-invalid`, not JS `blur` handlers | ❌ | ✅ |
-| `:autofill` styled with a non-colour cue | ❌ | ✅ |
-| Dialog contains scroll (`overscroll-behavior: contain`) | ❌ | ✅ |
-| Suggests a CSP for the page | ❌ | ✅ |
+## Limitations
 
-## Read this before quoting the number
-
-- It's **one prompt and one run per side**, graded by hand against this skill's own checklist.
-  That shows what the skill changes. It isn't a benchmark.
-- The baseline is good code. It uses `<dialog>`, returns focus, sizes the hero with `dvh` and
-  keeps `aria-invalid` in sync. The skill's gains are in the newer platform features, which is what
-  the Chrome team's evals found too.
-- Both pages were reviewed by reading the code. They weren't tested across browsers. `closedby`
-  and `@starting-style` need recent browsers, and the with-skill page includes fallbacks.
+- **One prompt and one run per skill.** LLM output varies, so another run could move scores by a
+  few points.
+- **One grader, and that grader is also an LLM.** The verdicts are reproducible from the quoted
+  code, but they weren't checked by a person.
+- **Part A was written by the author of one of the competitors**, namely this repo. Weigh Part B more.
+- **One task.** A settings dialog exercises dialogs, theming and forms. It doesn't test gestures,
+  performance or passkeys, where the skills may rank differently.
+- **No cross-browser testing.** The grading is from code, and the screenshots come from Chrome only.

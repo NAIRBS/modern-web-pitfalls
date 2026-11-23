@@ -1,0 +1,743 @@
+{
+  "blind_id_mapping": {
+    "page-P": "web-quality-skills",
+    "page-Q": "without-skill",
+    "page-R": "frontend-design",
+    "page-S": "with-skill",
+    "page-T": "vercel-web-design-guidelines",
+    "page-U": "modern-web-guidance"
+  },
+  "results": {
+    "web-quality-skills": {
+      "A": {
+        "A1": [
+          "PASS",
+          "<dialog class='settings'> opened via dialog.showModal()"
+        ],
+        "A2": [
+          "PASS",
+          "close handler: openBtn.focus(); // return focus to the trigger"
+        ],
+        "A3": [
+          "PASS",
+          ":root[data-theme='light'] { color-scheme: light } / [data-theme='dark'] { color-scheme: dark }"
+        ],
+        "A4": [
+          "PASS",
+          "setError sets aria-invalid='true' only when message text+icon is appended, else removeAttribute"
+        ],
+        "A5": [
+          "PASS",
+          "<p class='hint' id='expiry-hint'>...MM/YY...</p> above input; aria-describedby='expiry-hint expiry-error'"
+        ],
+        "A6": [
+          "PASS",
+          "min-height: 100vh; min-height: 100dvh;"
+        ],
+        "A7": [
+          "PASS",
+          "<meta name='color-scheme' content='light dark'>"
+        ],
+        "A8": [
+          "FAIL",
+          "Tokens are hex values swapped per [data-theme]; no light-dark()"
+        ],
+        "A9": [
+          "FAIL",
+          "Only Light and Dark radios; no System option to clear the stored choice"
+        ],
+        "A10": [
+          "PASS",
+          "window.addEventListener('storage', ... applyTheme(event.newValue))"
+        ],
+        "A11": [
+          "FAIL",
+          "JS toggles .is-closing and waits for 'animationend' before dialog.close()"
+        ],
+        "A12": [
+          "FAIL",
+          "Blanket @media (prefers-reduced-motion: reduce) { *, ... { animation-duration: 0.01ms !important } }"
+        ],
+        "A13": [
+          "FAIL",
+          "No closedby; custom pointerdown/click backdrop handler"
+        ],
+        "A14": [
+          "FAIL",
+          "Errors driven by custom blur/input listeners: input.addEventListener('blur', ...)"
+        ],
+        "A15": [
+          "FAIL",
+          "No :autofill / :-webkit-autofill styling"
+        ],
+        "A16": [
+          "PASS",
+          ".settings { overflow: auto; overscroll-behavior: contain; } plus html.dialog-open { overflow: hidden }"
+        ],
+        "A17": [
+          "PASS",
+          "<meta http-equiv='Content-Security-Policy' content=\"default-src 'none'; script-src 'sha256-...'\"> (hashes verified to match the inline blocks)"
+        ]
+      },
+      "B": {
+        "B1": [
+          "PASS",
+          "<label for='email'>, <label for='expiry'>, radios with <label for='theme-light'> etc."
+        ],
+        "B2": [
+          "PASS",
+          "<p class='error' aria-live='polite'> and firstInvalid.focus() on submit"
+        ],
+        "B3": [
+          "PASS",
+          "createErrorIcon() SVG prepended to the error text"
+        ],
+        "B4": [
+          "PASS",
+          "Button opens; Esc via 'cancel' -> requestClose(); visually hidden native radios keep keyboard; submit button"
+        ],
+        "B5": [
+          "PASS",
+          ":focus { outline: none } replaced by :focus-visible { outline: 3px solid var(--focus) }; .segmented input:focus-visible + label"
+        ],
+        "B6": [
+          "PASS",
+          "Annotated ratios: --muted #4a5068 7.6:1, --border #767c93 4.2:1, dark tokens similar; no clear failures"
+        ],
+        "B7": [
+          "PASS",
+          "type='email' autocomplete='email'; expiry inputmode='numeric' autocomplete='cc-exp'"
+        ],
+        "B8": [
+          "PASS",
+          "'The month must be between 01 and 12.' and 'This card has expired...'"
+        ],
+        "B9": [
+          "PASS",
+          "Inline head script sets data-theme from localStorage before <style>/body"
+        ],
+        "B10": [
+          "PASS",
+          "No obvious bugs; CSP hashes match so scripts run; backdrop click requires press+release outside"
+        ]
+      },
+      "C": [
+        "Strong a11y fundamentals: icons + live regions, reserved error slot, 48px targets, forced-colors handling.",
+        "Strict hash-based CSP with Trusted Types, and DOM-only error rendering compatible with it.",
+        "Theme is two-state only: once chosen, there is no way back to following the OS.",
+        "Close animation relies on JS class + animationend; a missed animationend would leave the dialog stuck in .is-closing."
+      ],
+      "scoreA": 10,
+      "scoreB": 10
+    },
+    "without-skill": {
+      "A": {
+        "A1": [
+          "PASS",
+          "<dialog id='settings'> + dialog.showModal()"
+        ],
+        "A2": [
+          "PASS",
+          "dialog.addEventListener('close', function () { openBtn.focus(); })"
+        ],
+        "A3": [
+          "PASS",
+          ":root { color-scheme: light } / [data-theme='dark'] { color-scheme: dark }"
+        ],
+        "A4": [
+          "PASS",
+          "setError: el.textContent = msg; if (msg) aria-invalid='true' else removeAttribute"
+        ],
+        "A5": [
+          "PASS",
+          "<span class='hint' id='expiry-hint'>Format MM/YY</span> above input; aria-describedby='expiry-hint expiry-error'"
+        ],
+        "A6": [
+          "PASS",
+          "min-height: 100vh; min-height: 100dvh;"
+        ],
+        "A7": [
+          "FAIL",
+          "No <meta name='color-scheme'>"
+        ],
+        "A8": [
+          "FAIL",
+          "Hex tokens per data-theme; no light-dark()"
+        ],
+        "A9": [
+          "FAIL",
+          "Light and Dark radios only"
+        ],
+        "A10": [
+          "FAIL",
+          "No storage event listener"
+        ],
+        "A11": [
+          "FAIL",
+          "dialog.classList.add('closing'); addEventListener('animationend', finish); setTimeout(finish, 250)"
+        ],
+        "A12": [
+          "FAIL",
+          "Uses a 0.01ms override: dialog[open], dialog.closing { animation-duration: 0.01ms; }; translate/scale keyframes not removed"
+        ],
+        "A13": [
+          "FAIL",
+          "No closedby; getBoundingClientRect click handler"
+        ],
+        "A14": [
+          "FAIL",
+          "Custom blur tracking: email.addEventListener('blur', ...)"
+        ],
+        "A15": [
+          "FAIL",
+          "No :autofill styling"
+        ],
+        "A16": [
+          "FAIL",
+          "dialog { overflow: auto } without overscroll-behavior and no page scroll lock"
+        ],
+        "A17": [
+          "FAIL",
+          "No CSP suggested or set"
+        ]
+      },
+      "B": {
+        "B1": [
+          "PASS",
+          "<label for='email'>, <label for='expiry'>, <label for='theme-light'>"
+        ],
+        "B2": [
+          "PASS",
+          "<div class='error' aria-live='polite'> and email.focus()/expiry.focus() on submit"
+        ],
+        "B3": [
+          "FAIL",
+          "Only colour cues: input[aria-invalid='true'] { border-color: var(--danger) } and red text; no icon/prefix/weight"
+        ],
+        "B4": [
+          "PASS",
+          "Esc via cancel -> closeDialog; hidden radios still focusable; submit button"
+        ],
+        "B5": [
+          "PASS",
+          "button:focus-visible, input:focus-visible { outline: 2px solid var(--accent) }; .segmented input:focus-visible + label"
+        ],
+        "B6": [
+          "FAIL",
+          "Input border --border #d9dade on #f7f7f5 (~1.3:1) and #363943 on #121317 in dark: control boundaries well under 3:1"
+        ],
+        "B7": [
+          "PASS",
+          "type='email' autocomplete='email'; inputmode='numeric' autocomplete='cc-exp'"
+        ],
+        "B8": [
+          "PASS",
+          "'Month must be between 01 and 12.' and 'This card has expired...'"
+        ],
+        "B9": [
+          "PASS",
+          "Head script sets dataset.theme before paint"
+        ],
+        "B10": [
+          "PASS",
+          "No obvious bugs; animationend has a setTimeout fallback so it cannot stick"
+        ]
+      },
+      "C": [
+        "Minimal, functional baseline but none of the modern platform features (light-dark, closedby, :user-invalid, storage sync).",
+        "Email has no visible hint (placeholder only); expiry hint is fine.",
+        "Auto-closes the dialog 600ms after Save, which may cut off the 'Saved.' status for screen reader users."
+      ],
+      "scoreA": 6,
+      "scoreB": 8
+    },
+    "frontend-design": {
+      "A": {
+        "A1": [
+          "PASS",
+          "if (typeof dialog.showModal === 'function') dialog.showModal();"
+        ],
+        "A2": [
+          "PASS",
+          "finishClose(): dialog.close(); openBtn.focus();"
+        ],
+        "A3": [
+          "PASS",
+          ":root[data-theme='dark'] { color-scheme: dark } (light uses default)"
+        ],
+        "A4": [
+          "PASS",
+          "show(): err.textContent = msg; aria-invalid='true' only when msg"
+        ],
+        "A5": [
+          "FAIL",
+          "Format only in label text 'Card expiry (MM/YY)' and placeholder; aria-describedby='expiry-error' only, no linked hint"
+        ],
+        "A6": [
+          "PASS",
+          "min-height: 100vh; min-height: 100dvh;"
+        ],
+        "A7": [
+          "FAIL",
+          "No <meta name='color-scheme'>"
+        ],
+        "A8": [
+          "FAIL",
+          "Hex tokens per data-theme; no light-dark()"
+        ],
+        "A9": [
+          "FAIL",
+          "Light and Dark only"
+        ],
+        "A10": [
+          "FAIL",
+          "No storage listener"
+        ],
+        "A11": [
+          "FAIL",
+          "classList.add('closing'); animationend + setTimeout(end, 300)"
+        ],
+        "A12": [
+          "FAIL",
+          "Blanket *, ::backdrop { animation-duration: .01ms !important }"
+        ],
+        "A13": [
+          "FAIL",
+          "No closedby; manual backdrop click handler"
+        ],
+        "A14": [
+          "FAIL",
+          "Custom blur tracking: input.addEventListener('blur', ...)"
+        ],
+        "A15": [
+          "FAIL",
+          "No :autofill styling"
+        ],
+        "A16": [
+          "FAIL",
+          "dialog.settings { overflow: auto } without overscroll-behavior"
+        ],
+        "A17": [
+          "FAIL",
+          "No CSP"
+        ]
+      },
+      "B": {
+        "B1": [
+          "PASS",
+          "<label for='email'>, <label for='expiry'>, theme labels with for="
+        ],
+        "B2": [
+          "PASS",
+          "<p class='error' aria-live='polite'>; focus moved to first invalid on submit"
+        ],
+        "B3": [
+          "FAIL",
+          "Only .field input[aria-invalid='true'] { border-color: var(--error) } and red text"
+        ],
+        "B4": [
+          "PASS",
+          "Esc via cancel -> closeDialog; radios focusable; submit works"
+        ],
+        "B5": [
+          "PASS",
+          ":focus-visible { outline: 3px solid var(--pollen) }"
+        ],
+        "B6": [
+          "FAIL",
+          "Input border --line #BFCBB4 on --bg #E6ECDD (~1.5:1), dark #34503F on #14241C: control boundaries well under 3:1; pollen focus ring on lichen also low"
+        ],
+        "B7": [
+          "PASS",
+          "type='email' autocomplete='email' inputmode='email'; expiry inputmode='numeric' autocomplete='cc-exp'"
+        ],
+        "B8": [
+          "PASS",
+          "'The month must be between 01 and 12.' and 'This card expired in MM/YY...'"
+        ],
+        "B9": [
+          "PASS",
+          "Head script sets data-theme from 'fernhouse-theme' before paint"
+        ],
+        "B10": [
+          "PASS",
+          "No obvious bugs; close has a setTimeout fallback"
+        ]
+      },
+      "C": [
+        "Most distinctive visual design (brand palette, serif display type, drawn frond SVG).",
+        "Expiry format hint is not a separate described-by hint; email has placeholder only.",
+        "Theme radios sit outside the form but inside the dialog; theme is two-state with no OS follow after choice."
+      ],
+      "scoreA": 5,
+      "scoreB": 8
+    },
+    "with-skill": {
+      "A": {
+        "A1": [
+          "PASS",
+          "<dialog id='settings' closedby='any'> + dialog.showModal()"
+        ],
+        "A2": [
+          "PASS",
+          "Native showModal() focus restore; all closes via dialog.close()/closedby"
+        ],
+        "A3": [
+          "PASS",
+          ":root { color-scheme: light dark; } overridden via root.style.colorScheme"
+        ],
+        "A4": [
+          "PASS",
+          "sync(): shown = input.matches(':user-invalid'); aria-invalid = String(shown); error.hidden = !shown"
+        ],
+        "A5": [
+          "PASS",
+          "<p id='exp-hint' class='hint'>Format: MM/YY</p> above input; aria-describedby='exp-hint exp-error'"
+        ],
+        "A6": [
+          "PASS",
+          "min-height: 100svh;"
+        ],
+        "A7": [
+          "PASS",
+          "<meta name='color-scheme' content='light dark'>"
+        ],
+        "A8": [
+          "PASS",
+          "--bg: light-dark(#f7f7f5, #121214); etc."
+        ],
+        "A9": [
+          "PASS",
+          "<input type='radio' name='theme' value='system'> System -> localStorage.removeItem('theme')"
+        ],
+        "A10": [
+          "PASS",
+          "addEventListener('storage', (e) => { if (e.key === 'theme' || e.key === null) paintTheme(readTheme()); })"
+        ],
+        "A11": [
+          "PASS",
+          "@starting-style { opacity: 0; } + transition: ... overlay .2s allow-discrete, display .2s allow-discrete; close is plain dialog.close()"
+        ],
+        "A12": [
+          "PASS",
+          "translate/scale only inside @media (prefers-reduced-motion: no-preference)"
+        ],
+        "A13": [
+          "PASS",
+          "closedby='any' with backdrop-click fallback when !('closedBy' in HTMLDialogElement.prototype)"
+        ],
+        "A14": [
+          "PASS",
+          ".field input:user-invalid styling and input.matches(':user-invalid') in sync()"
+        ],
+        "A15": [
+          "PASS",
+          ".field input:autofill { box-shadow: inset 4px 0 0 var(--accent); } (bar shape cue)"
+        ],
+        "A16": [
+          "PASS",
+          "dialog { overflow: auto; overscroll-behavior: contain; }"
+        ],
+        "A17": [
+          "PASS",
+          "Head comment: 'Content-Security-Policy: script-src 'sha256-...' ...; object-src 'none'...'"
+        ]
+      },
+      "B": {
+        "B1": [
+          "PASS",
+          "<label for='email'>, <label for='exp'>, radios wrapped in <label>"
+        ],
+        "B2": [
+          "PASS",
+          "Errors linked via aria-describedby='exp-hint exp-error' and first invalid focused: inputs.find(i => !i.validity.valid)?.focus() (plus native focus on invalid submit)"
+        ],
+        "B3": [
+          "PASS",
+          ".error::before { content: '\\26A0\\FE0E ' } and inset box-shadow thickening the border"
+        ],
+        "B4": [
+          "PASS",
+          "Native Esc close, native radios, submit button"
+        ],
+        "B5": [
+          "PASS",
+          ":focus-visible { outline: 3px solid var(--focus) }"
+        ],
+        "B6": [
+          "FAIL",
+          "--border light-dark(#c4c7cc, #4a4d54) on input bg #f7f7f5 / #121214: ~1.6:1 / ~2.2:1, control boundaries under 3:1"
+        ],
+        "B7": [
+          "PASS",
+          "type='email' autocomplete='email'; autocomplete='cc-exp' inputmode='numeric'"
+        ],
+        "B8": [
+          "PASS",
+          "patternMismatch -> 'Use MM/YY with a month from 01 to 12...'; expired -> 'This card has expired...'"
+        ],
+        "B9": [
+          "PASS",
+          "Head script sets documentElement.style.colorScheme from storage before paint"
+        ],
+        "B10": [
+          "PASS",
+          "No obvious bugs"
+        ]
+      },
+      "C": [
+        "Fully embraces modern platform: @starting-style + allow-discrete, closedby, :user-invalid, light-dark(), System option.",
+        "Uses native constraint validation with setCustomValidity for the expired case, keeping logic small.",
+        "Month 00/13 shares its message with general format errors (still names the 01-12 range).",
+        "No Cancel button; native validation bubbles may appear alongside custom errors on Save.",
+        "Input borders are too faint in both themes."
+      ],
+      "scoreA": 17,
+      "scoreB": 9
+    },
+    "vercel-web-design-guidelines": {
+      "A": {
+        "A1": [
+          "PASS",
+          "<dialog id='dlg'> + dlg.showModal()"
+        ],
+        "A2": [
+          "PASS",
+          "finish = () => { dlg.close(); openBtn.focus(); }"
+        ],
+        "A3": [
+          "PASS",
+          ":root { color-scheme: light } / html[data-theme='dark'] { color-scheme: dark }"
+        ],
+        "A4": [
+          "PASS",
+          "show(): errEl.textContent = msg; aria-invalid='true' only when msg"
+        ],
+        "A5": [
+          "FAIL",
+          "Visible hint is 'Month and year as shown on your card.'; the MM/YY format appears only in placeholder='MM/YY, e.g. 08/29…'"
+        ],
+        "A6": [
+          "PASS",
+          "min-height: 100vh; min-height: 100dvh;"
+        ],
+        "A7": [
+          "FAIL",
+          "No <meta name='color-scheme'> (only theme-color)"
+        ],
+        "A8": [
+          "FAIL",
+          "Hex tokens per data-theme; no light-dark()"
+        ],
+        "A9": [
+          "FAIL",
+          "Only Light/Dark aria-pressed buttons"
+        ],
+        "A10": [
+          "FAIL",
+          "No storage listener"
+        ],
+        "A11": [
+          "FAIL",
+          "requestAnimationFrame(() => dlg.classList.add('show')); closeTimer = setTimeout(finish, 200)"
+        ],
+        "A12": [
+          "PASS",
+          "@media (prefers-reduced-motion: reduce) { dialog { transform: none; } transition: none }"
+        ],
+        "A13": [
+          "FAIL",
+          "No closedby; click handler e.target === dlg"
+        ],
+        "A14": [
+          "FAIL",
+          "Custom blur tracking: input.addEventListener('blur', ...)"
+        ],
+        "A15": [
+          "FAIL",
+          "No :autofill styling"
+        ],
+        "A16": [
+          "PASS",
+          "dialog { overflow: auto; overscroll-behavior: contain; }"
+        ],
+        "A17": [
+          "FAIL",
+          "No CSP"
+        ]
+      },
+      "B": {
+        "B1": [
+          "PASS",
+          "<label for='email'>, <label for='exp'>; theme uses buttons (no inputs)"
+        ],
+        "B2": [
+          "PASS",
+          "<p class='error' aria-live='polite'>; email.focus()/exp.focus() on submit"
+        ],
+        "B3": [
+          "FAIL",
+          "Only input[aria-invalid='true'] { border-color: var(--danger) } and red text"
+        ],
+        "B4": [
+          "PASS",
+          "Esc via cancel -> closeDialog; theme buttons; submit button"
+        ],
+        "B5": [
+          "PASS",
+          "button:focus-visible / input:focus-visible { outline: 2px solid var(--ring) }"
+        ],
+        "B6": [
+          "FAIL",
+          "Input border #c9c9d2 on #f7f7f8 (~1.6:1), #3d3d46 on #111114 in dark; success #2b8a3e on #fff ~4.4:1 for small text"
+        ],
+        "B7": [
+          "PASS",
+          "type='email' inputmode='email' autocomplete='email'; inputmode='numeric' autocomplete='cc-exp'"
+        ],
+        "B8": [
+          "PASS",
+          "'Enter a month from 01 to 12.' and 'This card has expired...'"
+        ],
+        "B9": [
+          "PASS",
+          "Head script sets dataset.theme before paint"
+        ],
+        "B10": [
+          "FAIL",
+          "dialog has padding: 24px directly, and click handler `if (e.target === dlg) closeDialog(true)` closes the dialog when clicking its own padding inside the box"
+        ]
+      },
+      "C": [
+        "Backdrop-click check without a bounding-rect test means clicks in the dialog's padding dismiss it.",
+        "Hash/history sync pushes new entries on close instead of going back, cluttering history.",
+        "beforeunload prompt fires after any typing until a successful save, which can be intrusive.",
+        "Good touches: safe-area padding, aria-busy saving state, theme-color meta kept in sync."
+      ],
+      "scoreA": 7,
+      "scoreB": 7
+    },
+    "modern-web-guidance": {
+      "A": {
+        "A1": [
+          "PASS",
+          "command='show-modal' commandfor='settings' with fallback dialog.showModal()"
+        ],
+        "A2": [
+          "PASS",
+          "Native showModal()/command focus restore; closes via dialog.close()"
+        ],
+        "A3": [
+          "PASS",
+          ":root { color-scheme: light dark; &:has(> head > meta[...content='dark']) { color-scheme: dark; } }"
+        ],
+        "A4": [
+          "PASS",
+          "syncAria: isUserInvalid(el) -> aria-invalid 'true'/'false'; error visible via input:user-invalid + .error-msg, same source"
+        ],
+        "A5": [
+          "PASS",
+          "<span id='exp-hint' class='hint'>Format: MM/YY, for example 08/29</span> above input; aria-describedby='exp-hint'"
+        ],
+        "A6": [
+          "PASS",
+          "min-height: 100vh; /* fallback */ min-height: 100dvh;"
+        ],
+        "A7": [
+          "PASS",
+          "<meta name='color-scheme' content='light dark'>"
+        ],
+        "A8": [
+          "PASS",
+          "--bg: light-dark(var(--bg-light), var(--bg-dark)); inside @supports"
+        ],
+        "A9": [
+          "PASS",
+          "<input type='radio' name='theme' value='light dark'> System -> localStorage.removeItem('color-scheme')"
+        ],
+        "A10": [
+          "PASS",
+          "window.addEventListener('storage', (e) => { if (e.key === 'color-scheme' || e.key === null) applyScheme(readStored()); })"
+        ],
+        "A11": [
+          "FAIL",
+          "Primary path is @starting-style + transition-behavior: allow-discrete, but closeDialog() also contains a JS exit path: setAttribute('data-closing'), await getAnimations().finished raced with setTimeout(r, 2000)"
+        ],
+        "A12": [
+          "PASS",
+          "transform only inside @media (prefers-reduced-motion: no-preference); reduce sets 0.1s (not a 0.01ms hack)"
+        ],
+        "A13": [
+          "PASS",
+          "<dialog ... closedby='any'> with pointerdown/pointerup fallback"
+        ],
+        "A14": [
+          "PASS",
+          ".field input:is(:user-invalid, ...) + .error-msg { display: block }; el.matches(':user-invalid')"
+        ],
+        "A15": [
+          "FAIL",
+          "No :autofill / :-webkit-autofill styling"
+        ],
+        "A16": [
+          "PASS",
+          "dialog:modal { overscroll-behavior: contain; } and ::backdrop overscroll-behavior: contain"
+        ],
+        "A17": [
+          "FAIL",
+          "No CSP meta or header comment"
+        ]
+      },
+      "B": {
+        "B1": [
+          "PASS",
+          "<label for='email'>, <label for='cc-exp'>, radios wrapped in <label>"
+        ],
+        "B2": [
+          "PASS",
+          "aria-live='polite' announcer appended to dialog; error id added to aria-describedby when shown"
+        ],
+        "B3": [
+          "PASS",
+          "SVG icon role='img' aria-label='Error' plus border-width: 2px and error background"
+        ],
+        "B4": [
+          "PASS",
+          "Command button / click fallback opens; Esc via cancel -> closeDialog; native radios; submit"
+        ],
+        "B5": [
+          "PASS",
+          ":focus-visible { outline: 3px solid var(--brand) }"
+        ],
+        "B6": [
+          "PASS",
+          "--border-light #767676 (4.5:1), --border-dark #8a8d9c, muted #575b6b/#a6a9b8; no clear failures"
+        ],
+        "B7": [
+          "PASS",
+          "type='email' autocomplete='email'; autocomplete='cc-exp' inputmode='numeric'"
+        ],
+        "B8": [
+          "PASS",
+          "'Enter a month between 01 and 12...' and 'This card has expired...'"
+        ],
+        "B9": [
+          "PASS",
+          "Head script sets meta color-scheme content from localStorage before paint; CSS :has maps it"
+        ],
+        "B10": [
+          "PASS",
+          "No obvious bugs; fallback paths guarded by feature detection"
+        ]
+      },
+      "C": [
+        "Most thorough progressive enhancement: Invoker Commands, closedby, :user-invalid, light-dark() each with fallbacks.",
+        "'System (currently light/dark)' label driven purely by CSS media query is a nice touch.",
+        "Considerable complexity (display-transition probe, announcer with timers, WeakSets) for a small form.",
+        "Missing :autofill cue and CSP suggestion."
+      ],
+      "scoreA": 14,
+      "scoreB": 10
+    }
+  }
+}

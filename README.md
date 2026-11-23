@@ -9,11 +9,53 @@ security. They don't write broken code. They write code from older habits: hand-
 `touchmove` swipe physics, `setTimeout` task queues, DIY HTML sanitizers, `atob` passkey helpers. The
 platform now has native primitives for all of these. This skill shows the agent what to use instead.
 
-## Before / after
+## Head-to-head: 5 skills vs. no skill
 
-I gave two fresh agents the same prompt: *"a full-height hero, a Settings button that opens an
+I gave six fresh agents the same prompt: *"a full-height hero, a Settings button that opens an
 animated modal, a light/dark theme switcher that persists, and an email + card-expiry form with
-validation."* One agent had the skill and one didn't.
+validation."* Each agent had one skill installed (or none). A separate grader then scored all six
+pages **blind**, under shuffled names, against a fixed rubric.
+
+| Skill | Modern-platform checks (17) | General quality basics (10) | Notable |
+|---|:-:|:-:|---|
+| **modern-web-pitfalls** (this) | **17** | 9 | Input borders too faint (under 3:1 contrast) |
+| [Modern Web Guidance](https://github.com/GoogleChrome/modern-web-guidance) (official) | 14 | **10** | Best page overall on the neutral checks. Uses a JS exit-animation fallback for Firefox/Safari, which the strict rubric fails |
+| [Web Quality Skills](https://github.com/addyosmani/web-quality-skills) | 10 | **10** | Strongest security: a hash-based CSP plus Trusted Types |
+| [Vercel web-design-guidelines](https://github.com/vercel-labs/agent-skills) | 7 | 7 | **Bug:** clicking inside the dialog's padding closes it |
+| *No skill* | 6 | 8 | Errors shown by colour only |
+| [frontend-design](https://github.com/anthropics/skills) | 5 | 8 | Most distinctive look, but it wasn't built for platform correctness |
+
+**How to read this:** the first column uses *this* skill's own checklist, so of course this skill
+wins it. That column shows that the skill does what it says, not that it's the best. The second
+column is neutral, and there the official **Modern Web Guidance** and **Web Quality Skills** do
+better. My recommendation hasn't changed: install Modern Web Guidance if you can. Full method,
+rubric, raw scores and every verdict with its code quote are in
+[`examples/settings-panel/`](examples/settings-panel/).
+
+<table>
+  <tr>
+    <th>No skill</th><th>modern-web-pitfalls</th><th>Modern Web Guidance</th>
+  </tr>
+  <tr>
+    <td><img src="docs/screenshots/without-skill-light.png" alt="No skill: settings dialog"></td>
+    <td><img src="docs/screenshots/with-skill-light.png" alt="modern-web-pitfalls: settings dialog with Light/Dark/System"></td>
+    <td><img src="docs/screenshots/modern-web-guidance-light.png" alt="Modern Web Guidance: settings dialog with System/Light/Dark cards and icon errors"></td>
+  </tr>
+  <tr>
+    <th>Web Quality Skills</th><th>Vercel guidelines</th><th>frontend-design</th>
+  </tr>
+  <tr>
+    <td><img src="docs/screenshots/web-quality-skills-light.png" alt="Web Quality Skills: settings dialog with segmented theme control"></td>
+    <td><img src="docs/screenshots/vercel-web-design-guidelines-light.png" alt="Vercel guidelines: settings dialog"></td>
+    <td><img src="docs/screenshots/frontend-design-light.png" alt="frontend-design: botanical-themed settings dialog"></td>
+  </tr>
+</table>
+
+<sub>Each page after clicking <b>Save</b> on an empty form, rendered in headless Chrome. Dark-mode versions are in the examples folder.</sub>
+
+## Why these guidelines matter
+
+Here's the original two-way comparison, without and with this skill:
 
 <table>
   <tr>
@@ -114,7 +156,10 @@ can run alongside the official one.
 - It covers **10 areas**, not the whole platform. If your problem isn't on the checklist, this skill
   won't help.
 - It has **no browser-compat database**. It relies on feature detection and fallbacks instead.
-- So far, the only evidence is **one before/after demo**, not an eval suite.
+- The evidence is **one prompt, one run per skill**, with one blind grader. That's a useful signal,
+  not a benchmark. Modern Web Guidance publishes a real eval suite.
+- In the head-to-head, the page built with this skill **failed a neutral contrast check**: its input
+  borders were under 3:1. I've added that rule to the checklist since then, but I haven't re-run the test.
 - One person maintains it. Corrections are very welcome.
 
 <sub>Comparison as of November 2026, based on each project's public README. Features and scope change, so check each repo for the current details.</sub>

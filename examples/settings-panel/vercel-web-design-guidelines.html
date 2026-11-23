@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f7f7f8">
+<title>Settings Panel</title>
+<script>
+  // Apply the saved theme before first paint to avoid a flash of the wrong theme.
+  (function () {
+    var theme = null;
+    try { theme = localStorage.getItem('theme'); } catch (e) {}
+    if (theme !== 'light' && theme !== 'dark') {
+      theme = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    document.documentElement.dataset.theme = theme;
+  })();
+</script>
+<style>
+  :root {
+    --bg: #f7f7f8;
+    --fg: #16161a;
+    --muted: #5b5b66;
+    --card: #ffffff;
+    --border: #c9c9d2;
+    --accent: #3b5bdb;
+    --accent-hover: #2f4ac0;
+    --hover: #ececf0;
+    --danger: #c92a2a;
+    --success: #2b8a3e;
+    --ring: #3b5bdb;
+    color-scheme: light;
+  }
+  html[data-theme="dark"] {
+    --bg: #111114;
+    --fg: #ececf1;
+    --muted: #a8a8b3;
+    --card: #1c1c21;
+    --border: #3d3d46;
+    --accent: #7b93ff;
+    --accent-hover: #9aadff;
+    --hover: #2a2a31;
+    --danger: #ff8787;
+    --success: #69db7c;
+    --ring: #9aadff;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-tap-highlight-color: rgba(59, 91, 219, 0.2); }
+  @media (pointer: fine) { html { overscroll-behavior: none; } }
+  body {
+    margin: 0;
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    background: var(--bg);
+    color: var(--fg);
+    line-height: 1.5;
+    overflow-x: hidden;
+  }
+
+  .skip-link {
+    position: absolute;
+    left: 16px;
+    top: -48px;
+    z-index: 10;
+    padding: 8px 14px;
+    border-radius: 8px;
+    background: var(--accent);
+    color: #fff;
+  }
+  .skip-link:focus-visible { top: calc(12px + env(safe-area-inset-top)); outline: 2px solid var(--fg); outline-offset: 2px; }
+
+  .hero {
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: grid;
+    place-items: center;
+    text-align: center;
+    padding:
+      calc(24px + env(safe-area-inset-top))
+      calc(24px + env(safe-area-inset-right))
+      calc(24px + env(safe-area-inset-bottom))
+      calc(24px + env(safe-area-inset-left));
+  }
+  .hero-inner { max-width: 40rem; min-width: 0; }
+  .hero h1 { font-size: clamp(2rem, 6vw, 3rem); margin: 0 0 12px; text-wrap: balance; overflow-wrap: break-word; }
+  .hero p { color: var(--muted); margin: 0 0 24px; text-wrap: pretty; }
+
+  button {
+    font: inherit;
+    cursor: pointer;
+    border-radius: 8px;
+    padding: 10px 18px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--fg);
+    touch-action: manipulation;
+    transition: background-color .15s ease, border-color .15s ease, color .15s ease;
+  }
+  button:hover { background: var(--hover); border-color: var(--muted); }
+  button:active { transform: translateY(1px); }
+  button:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+  button.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  html[data-theme="dark"] button.primary { color: #0b0b10; }
+  button.primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+  button[aria-busy="true"] { cursor: progress; }
+
+  dialog {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    width: min(440px, calc(100vw - 32px));
+    max-height: calc(100dvh - 32px);
+    overflow: auto;
+    overscroll-behavior: contain;
+    background: var(--card);
+    color: var(--fg);
+    opacity: 0;
+    transform: scale(.96) translateY(8px);
+    transform-origin: center;
+    transition: opacity .2s ease, transform .2s ease;
+  }
+  dialog.show { opacity: 1; transform: none; }
+  dialog::backdrop { background: rgba(0, 0, 0, 0); transition: background-color .2s ease; }
+  dialog.show::backdrop { background: rgba(0, 0, 0, .5); }
+
+  .dialog-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+  .dialog-head h2 { margin: 0; font-size: 1.25rem; text-wrap: balance; min-width: 0; }
+  .close { padding: 4px 10px; font-size: 1.25rem; line-height: 1; }
+
+  fieldset { border: 0; margin: 0 0 20px; padding: 0; }
+  legend { font-weight: 600; margin-bottom: 6px; padding: 0; }
+  .theme-row { display: flex; gap: 8px; }
+  .theme-row button[aria-pressed="true"] { border-color: var(--accent); background: var(--hover); box-shadow: inset 0 0 0 1px var(--accent); }
+
+  .field { margin-bottom: 16px; }
+  .field label { display: block; margin-bottom: 6px; font-weight: 600; cursor: pointer; }
+  .hint { color: var(--muted); font-size: .875rem; margin: 0 0 6px; }
+  input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--bg);
+    color: var(--fg);
+    font: inherit;
+    transition: border-color .15s ease;
+  }
+  input:hover { border-color: var(--muted); }
+  input:focus-visible { outline: 2px solid var(--ring); outline-offset: 1px; border-color: var(--accent); }
+  input[aria-invalid="true"] { border-color: var(--danger); }
+  #exp { font-variant-numeric: tabular-nums; max-width: 10rem; }
+  .error { color: var(--danger); font-size: .875rem; margin: 4px 0 0; overflow-wrap: anywhere; }
+  .error:empty { display: none; }
+  .actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  #status { color: var(--success); font-size: .875rem; min-width: 0; overflow-wrap: anywhere; }
+
+  @media (prefers-reduced-motion: reduce) {
+    dialog, dialog::backdrop, button, input { transition: none; }
+    dialog { transform: none; }
+    button:active { transform: none; }
+  }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to Main Content</a>
+
+<main id="main" tabindex="-1">
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="hero-inner">
+      <h1 id="hero-title">Welcome Back</h1>
+      <p>Choose your theme and keep your billing details up to date.</p>
+      <button class="primary" id="open" type="button" aria-haspopup="dialog" aria-controls="dlg">Settings</button>
+    </div>
+  </section>
+</main>
+
+<dialog id="dlg" aria-labelledby="dlg-title">
+  <div class="dialog-head">
+    <h2 id="dlg-title">Settings</h2>
+    <button class="close" id="close" type="button" aria-label="Close Settings"><span aria-hidden="true">&times;</span></button>
+  </div>
+
+  <fieldset>
+    <legend>Theme</legend>
+    <div class="theme-row">
+      <button type="button" data-set-theme="light" aria-pressed="false">Light</button>
+      <button type="button" data-set-theme="dark" aria-pressed="false">Dark</button>
+    </div>
+  </fieldset>
+
+  <form id="form" novalidate>
+    <div class="field">
+      <label for="email">Email</label>
+      <input id="email" name="email" type="email" inputmode="email" autocomplete="email"
+             spellcheck="false" autocapitalize="off" placeholder="you@example.com…"
+             aria-describedby="email-err">
+      <p class="error" id="email-err" aria-live="polite"></p>
+    </div>
+    <div class="field">
+      <label for="exp">Card Expiry</label>
+      <p class="hint" id="exp-hint">Month and year as shown on your card.</p>
+      <input id="exp" name="cc-exp" type="text" inputmode="numeric" autocomplete="cc-exp"
+             spellcheck="false" maxlength="5" placeholder="MM/YY, e.g. 08/29…"
+             aria-describedby="exp-hint exp-err">
+      <p class="error" id="exp-err" aria-live="polite"></p>
+    </div>
+    <div class="actions">
+      <button class="primary" type="submit" id="save">Save Settings</button>
+      <p id="status" role="status" aria-live="polite"></p>
+    </div>
+  </form>
+</dialog>
+
+<script>
+(function () {
+  const root = document.documentElement;
+  const themeMeta = document.querySelector('meta[name="theme-color"]');
+  const themeButtons = document.querySelectorAll('[data-set-theme]');
+  const dlg = document.getElementById('dlg');
+  const openBtn = document.getElementById('open');
+  const closeBtn = document.getElementById('close');
+  const form = document.getElementById('form');
+  const email = document.getElementById('email');
+  const exp = document.getElementById('exp');
+  const emailErr = document.getElementById('email-err');
+  const expErr = document.getElementById('exp-err');
+  const saveBtn = document.getElementById('save');
+  const status = document.getElementById('status');
+  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
+
+  /* ---------- Theme ---------- */
+  function applyTheme(theme, persist) {
+    root.dataset.theme = theme;
+    themeMeta.setAttribute('content', getComputedStyle(root).getPropertyValue('--bg').trim());
+    themeButtons.forEach(b => b.setAttribute('aria-pressed', String(b.dataset.setTheme === theme)));
+    if (persist) { try { localStorage.setItem('theme', theme); } catch (e) {} }
+  }
+  applyTheme(root.dataset.theme, false);
+  themeButtons.forEach(b => b.addEventListener('click', () => applyTheme(b.dataset.setTheme, true)));
+
+  /* ---------- Dialog (animated, interruptible, URL-synced) ---------- */
+  let closeTimer = null;
+  function openDialog(push) {
+    clearTimeout(closeTimer);
+    if (!dlg.open) dlg.showModal();
+    requestAnimationFrame(() => dlg.classList.add('show'));
+    if (push && location.hash !== '#settings') history.pushState(null, '', '#settings');
+  }
+  function closeDialog(push) {
+    if (!dlg.open) return;
+    dlg.classList.remove('show');
+    clearTimeout(closeTimer);
+    const finish = () => { dlg.close(); openBtn.focus(); };
+    if (reduceMotion.matches) finish(); else closeTimer = setTimeout(finish, 200);
+    if (push && location.hash === '#settings') history.pushState(null, '', location.pathname + location.search);
+  }
+  openBtn.addEventListener('click', () => openDialog(true));
+  closeBtn.addEventListener('click', () => closeDialog(true));
+  dlg.addEventListener('cancel', e => { e.preventDefault(); closeDialog(true); });
+  dlg.addEventListener('click', e => { if (e.target === dlg) closeDialog(true); });
+  window.addEventListener('popstate', () => { location.hash === '#settings' ? openDialog(false) : closeDialog(false); });
+  if (location.hash === '#settings') openDialog(false);
+
+  /* ---------- Validation ---------- */
+  function validateEmail() {
+    const v = email.value.trim();
+    if (!v) return 'Enter your email address, for example you@example.com.';
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) {
+      return v.includes('@')
+        ? 'Check the part after “@”. It needs a domain like example.com.'
+        : 'Add an “@” and a domain, for example you@example.com.';
+    }
+    return '';
+  }
+  function validateExp() {
+    const v = exp.value.trim();
+    if (!v) return 'Enter the expiry date from your card as MM/YY, for example 08/29.';
+    const m = /^(\d{2})\/(\d{2})$/.exec(v);
+    if (!m) return 'Use the MM/YY format with a slash, for example 08/29.';
+    const month = Number(m[1]);
+    const year = 2000 + Number(m[2]);
+    if (month < 1 || month > 12) return 'Enter a month from 01 to 12.';
+    const now = new Date();
+    const thisMonth = now.getFullYear() * 12 + now.getMonth();
+    if (year * 12 + (month - 1) < thisMonth) return 'This card has expired. Use a card with a future expiry date.';
+    return '';
+  }
+  function show(input, errEl, msg) {
+    errEl.textContent = msg;
+    if (msg) input.setAttribute('aria-invalid', 'true'); else input.removeAttribute('aria-invalid');
+  }
+
+  // Auto-insert the slash while typing digits; never blocks paste.
+  exp.addEventListener('input', e => {
+    if (e.inputType && e.inputType.startsWith('delete')) return;
+    const digits = exp.value.replace(/\D/g, '').slice(0, 4);
+    exp.value = digits.length > 2 ? digits.slice(0, 2) + '/' + digits.slice(2) : digits;
+  });
+
+  // Validate on blur once touched; clear errors as soon as they're fixed.
+  [[email, emailErr, validateEmail], [exp, expErr, validateExp]].forEach(([input, errEl, fn]) => {
+    input.addEventListener('blur', () => { if (input.value) show(input, errEl, fn()); });
+    input.addEventListener('input', () => { dirty = true; status.textContent = ''; if (errEl.textContent) show(input, errEl, fn()); });
+  });
+
+  /* ---------- Save ---------- */
+  let dirty = false;
+  let saving = false;
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    if (saving) return;
+    const eMsg = validateEmail();
+    const xMsg = validateExp();
+    show(email, emailErr, eMsg);
+    show(exp, expErr, xMsg);
+    if (eMsg) { email.focus(); return; }
+    if (xMsg) { exp.focus(); return; }
+
+    saving = true;
+    saveBtn.setAttribute('aria-busy', 'true');
+    saveBtn.textContent = 'Saving…';
+    status.textContent = '';
+    setTimeout(() => { // simulated request
+      saving = false;
+      dirty = false;
+      saveBtn.removeAttribute('aria-busy');
+      saveBtn.textContent = 'Save Settings';
+      status.textContent = 'Your settings are saved.';
+    }, 600);
+  });
+
+  window.addEventListener('beforeunload', e => {
+    if (dirty) { e.preventDefault(); e.returnValue = ''; }
+  });
+})();
+</script>
+</body>
+</html>

@@ -29,6 +29,7 @@ This skill lists the patterns to avoid and what to write instead.
 - [ ] Modals use `<dialog>` + `showModal()` (or `inert` on the background), not JS focus traps + `aria-modal`.
 - [ ] Toolbars, tab lists, grids and menus use **roving tabindex** (one tab stop per widget).
 - [ ] Custom `:focus-visible` outlines have ≥ 3:1 contrast against what's next to them.
+- [ ] Input borders and other UI component boundaries have ≥ 3:1 contrast against the background in **both** themes (WCAG 1.4.11). Faint 1px grey borders usually fail.
 - [ ] `scroll-behavior: smooth`, scroll-driven animations and `@view-transition` are gated behind `prefers-reduced-motion: no-preference`.
 - [ ] Reduced-motion carousels remove the movement (`transform`), not only the duration.
 - [ ] No blanket `* { transition-duration: 0.01ms }` reset.

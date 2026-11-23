@@ -1,0 +1,540 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fernhouse settings</title>
+<script>
+  // Apply the saved theme before first paint so there is no flash.
+  (function () {
+    var t = null;
+    try { t = localStorage.getItem("fernhouse-theme"); } catch (e) {}
+    if (t !== "light" && t !== "dark") {
+      t = window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    }
+    document.documentElement.setAttribute("data-theme", t);
+  })();
+</script>
+<style>
+  /*
+    Fernhouse: a monthly houseplant delivery service.
+    Palette: fern #1F3A2E, moss #6B8F5E, lichen #E6ECDD, bark #4A3B2C, pollen #D9A92B.
+    Type: Palatino-family serif for display, humanist sans for UI.
+  */
+  :root {
+    --fern: #1F3A2E;
+    --moss: #6B8F5E;
+    --lichen: #E6ECDD;
+    --bark: #4A3B2C;
+    --pollen: #D9A92B;
+
+    --bg: var(--lichen);
+    --surface: #F7F9F3;
+    --ink: var(--fern);
+    --ink-soft: #46594C;
+    --line: #BFCBB4;
+    --accent: var(--fern);
+    --accent-ink: #F7F9F3;
+    --error: #A3361F;
+    --ok: #2F6B3A;
+    --scrim: rgba(31, 58, 46, 0.45);
+
+    --serif: "Palatino Linotype", Palatino, "Book Antiqua", "Iowan Old Style", "URW Palladio L", Georgia, serif;
+    --sans: "Avenir Next", Avenir, "Segoe UI", "Gill Sans", "Helvetica Neue", system-ui, sans-serif;
+
+    --step--1: 0.875rem;
+    --step-0: 1rem;
+    --step-1: 1.125rem;
+    --step-2: 1.5rem;
+    --step-5: clamp(2.75rem, 8vw, 6rem);
+  }
+  :root[data-theme="dark"] {
+    --bg: #14241C;
+    --surface: #1C3026;
+    --ink: #E6ECDD;
+    --ink-soft: #AFC0A6;
+    --line: #34503F;
+    --accent: var(--pollen);
+    --accent-ink: #1A1608;
+    --error: #F08C6E;
+    --ok: #9CCB8A;
+    --scrim: rgba(5, 12, 8, 0.6);
+    color-scheme: dark;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: var(--step-0);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    transition: background-color .3s ease, color .3s ease;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--pollen);
+    outline-offset: 3px;
+  }
+
+  /* ---------- Hero ---------- */
+  .hero {
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    padding: clamp(1rem, 4vw, 3rem);
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+  }
+  .brand {
+    font-family: var(--serif);
+    font-size: var(--step-2);
+    font-style: italic;
+    letter-spacing: 0.01em;
+  }
+  .hero-body {
+    align-self: center;
+    max-width: 18ch;
+    position: relative;
+    z-index: 1;
+  }
+  .hero h1 {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: var(--step-5);
+    line-height: 1.02;
+    letter-spacing: -0.02em;
+    margin: 0 0 1.5rem;
+  }
+  .hero p {
+    font-size: var(--step-1);
+    color: var(--ink-soft);
+    max-width: 38ch;
+    margin: 0;
+  }
+  .hero-foot {
+    font-size: var(--step--1);
+    color: var(--ink-soft);
+    position: relative;
+    z-index: 1;
+  }
+
+  /* The frond: the single decorative element, drawn in on load. */
+  .frond {
+    position: absolute;
+    right: -6vw;
+    bottom: -4vh;
+    width: min(62vw, 720px);
+    height: auto;
+    color: var(--moss);
+    opacity: .55;
+    pointer-events: none;
+  }
+  :root[data-theme="dark"] .frond { opacity: .35; }
+  .frond path {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: draw 1.6s cubic-bezier(.5,0,.2,1) forwards;
+  }
+  .frond path:nth-child(n+2) { animation-delay: .5s; animation-duration: 1.1s; }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+
+  /* ---------- Buttons ---------- */
+  .btn {
+    font: 600 var(--step-0)/1 var(--sans);
+    border-radius: 999px;
+    padding: .85rem 1.4rem;
+    border: 1.5px solid var(--accent);
+    background: var(--accent);
+    color: var(--accent-ink);
+    cursor: pointer;
+    min-height: 44px;
+  }
+  .btn:hover { filter: brightness(1.12); }
+  .btn-quiet {
+    background: transparent;
+    color: var(--ink);
+    border-color: var(--line);
+  }
+  .btn-quiet:hover { border-color: var(--ink); filter: none; }
+
+  /* ---------- Dialog ---------- */
+  dialog.settings {
+    border: 0;
+    padding: 0;
+    margin: auto;
+    width: min(34rem, calc(100vw - 2rem));
+    max-height: calc(100dvh - 2rem);
+    border-radius: 6px 28px 6px 28px;
+    background: var(--surface);
+    color: var(--ink);
+    box-shadow: 0 30px 60px -20px rgba(20, 40, 30, .45);
+    overflow: auto;
+  }
+  dialog.settings::backdrop {
+    background: var(--scrim);
+    backdrop-filter: blur(3px);
+  }
+  dialog.settings[open] { animation: rise .32s cubic-bezier(.2,.8,.2,1); }
+  dialog.settings[open]::backdrop { animation: fade .32s ease; }
+  dialog.settings.closing { animation: sink .22s ease-in forwards; }
+  dialog.settings.closing::backdrop { animation: fade .22s ease-in reverse forwards; }
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(24px) scale(.97); }
+    to   { opacity: 1; transform: none; }
+  }
+  @keyframes sink {
+    from { opacity: 1; transform: none; }
+    to   { opacity: 0; transform: translateY(16px) scale(.98); }
+  }
+  @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+
+  .dlg-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    gap: 1rem;
+    padding: 1.75rem 1.75rem 0;
+  }
+  .dlg-head h2 {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: 2rem;
+    line-height: 1.1;
+    margin: 0;
+  }
+  .close {
+    flex: none;
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    border: 1.5px solid var(--line);
+    background: transparent;
+    color: var(--ink);
+    cursor: pointer;
+    display: grid; place-items: center;
+  }
+  .close:hover { border-color: var(--ink); }
+
+  .dlg-body { padding: 1.25rem 1.75rem 1.75rem; }
+  fieldset {
+    border: 0;
+    padding: 0;
+    margin: 0 0 1.75rem;
+  }
+  legend {
+    font-family: var(--serif);
+    font-size: var(--step-1);
+    padding: 0;
+    margin-bottom: .75rem;
+  }
+  .hint { color: var(--ink-soft); font-size: var(--step--1); margin: -.35rem 0 .75rem; }
+
+  /* Theme switcher: two leaf-shaped swatches */
+  .themes { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
+  .theme-opt { position: relative; }
+  .theme-opt input {
+    position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer;
+  }
+  .theme-opt label {
+    display: flex; align-items: center; gap: .75rem;
+    padding: .8rem 1rem;
+    border: 1.5px solid var(--line);
+    border-radius: 4px 18px 4px 18px;
+    cursor: pointer;
+    transition: border-color .2s ease;
+  }
+  .swatch {
+    width: 28px; height: 28px; flex: none;
+    border-radius: 2px 14px 2px 14px;
+    border: 1px solid rgba(0,0,0,.15);
+  }
+  .swatch.light { background: linear-gradient(135deg, #E6ECDD 50%, #6B8F5E 50%); }
+  .swatch.dark  { background: linear-gradient(135deg, #14241C 50%, #D9A92B 50%); }
+  .theme-opt input:checked + label { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+  .theme-opt input:focus-visible + label { outline: 3px solid var(--pollen); outline-offset: 3px; }
+
+  .field { margin-bottom: 1.1rem; }
+  .field label {
+    display: block;
+    font-weight: 600;
+    font-size: var(--step--1);
+    margin-bottom: .35rem;
+  }
+  .field input {
+    width: 100%;
+    font: var(--step-0)/1.4 var(--sans);
+    color: var(--ink);
+    background: var(--bg);
+    border: 1.5px solid var(--line);
+    border-radius: 4px;
+    padding: .7rem .85rem;
+    min-height: 44px;
+  }
+  .field input:focus-visible { outline-offset: 1px; border-color: var(--ink); }
+  .field input[aria-invalid="true"] { border-color: var(--error); }
+  .field.expiry input { max-width: 8rem; letter-spacing: .06em; font-variant-numeric: tabular-nums; }
+  .error {
+    color: var(--error);
+    font-size: var(--step--1);
+    margin: .4rem 0 0;
+    min-height: 0;
+  }
+  .error:empty { display: none; }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: .75rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--line);
+  }
+  .status {
+    margin-right: auto;
+    font-size: var(--step--1);
+    color: var(--ok);
+  }
+
+  @media (max-width: 480px) {
+    .dlg-head, .dlg-body { padding-left: 1.1rem; padding-right: 1.1rem; }
+    .themes { grid-template-columns: 1fr; }
+    .actions .btn { flex: 1; }
+    .status { flex-basis: 100%; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after, ::backdrop {
+      animation-duration: .01ms !important;
+      animation-delay: 0s !important;
+      transition-duration: .01ms !important;
+    }
+  }
+</style>
+</head>
+<body>
+
+<main>
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="hero-top">
+      <span class="brand">Fernhouse</span>
+      <button class="btn" id="open-settings" type="button" aria-haspopup="dialog">Settings</button>
+    </div>
+
+    <div class="hero-body">
+      <h1 id="hero-title">Your next plant ships December 3.</h1>
+      <p>A calathea is packed and waiting. Update your email or card before then so it reaches you without a hitch.</p>
+    </div>
+
+    <p class="hero-foot">Monthly plan, billed on the 1st.</p>
+
+    <svg class="frond" viewBox="0 0 600 600" aria-hidden="true">
+      <path pathLength="1" d="M580 600 C 470 470, 360 340, 120 60"/>
+      <path pathLength="1" d="M520 520 C 470 500, 420 470, 380 410 M520 520 C 530 470, 520 420, 500 380"/>
+      <path pathLength="1" d="M440 420 C 390 400, 340 370, 300 310 M440 420 C 450 370, 440 320, 420 280"/>
+      <path pathLength="1" d="M360 320 C 310 300, 270 270, 240 220 M360 320 C 370 270, 360 230, 340 190"/>
+      <path pathLength="1" d="M280 230 C 240 215, 210 190, 190 150 M280 230 C 290 190, 280 160, 265 130"/>
+      <path pathLength="1" d="M200 140 C 175 130, 160 115, 145 90 M200 140 C 205 115, 200 95, 190 75"/>
+    </svg>
+  </section>
+</main>
+
+<dialog class="settings" id="settings" aria-labelledby="settings-title">
+  <div class="dlg-head">
+    <h2 id="settings-title">Settings</h2>
+    <button class="close" type="button" id="close-settings" aria-label="Close settings">
+      <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+
+  <div class="dlg-body">
+    <fieldset>
+      <legend>Appearance</legend>
+      <div class="themes">
+        <div class="theme-opt">
+          <input type="radio" name="theme" id="theme-light" value="light">
+          <label for="theme-light"><span class="swatch light" aria-hidden="true"></span>Light</label>
+        </div>
+        <div class="theme-opt">
+          <input type="radio" name="theme" id="theme-dark" value="dark">
+          <label for="theme-dark"><span class="swatch dark" aria-hidden="true"></span>Dark</label>
+        </div>
+      </div>
+    </fieldset>
+
+    <form id="account-form" novalidate>
+      <fieldset>
+        <legend>Account and billing</legend>
+        <p class="hint">Shipping updates go to this email. The card is charged on the 1st of each month.</p>
+
+        <div class="field">
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" autocomplete="email" inputmode="email"
+                 spellcheck="false" placeholder="you@example.com" aria-describedby="email-error">
+          <p class="error" id="email-error" aria-live="polite"></p>
+        </div>
+
+        <div class="field expiry">
+          <label for="expiry">Card expiry (MM/YY)</label>
+          <input id="expiry" name="expiry" type="text" autocomplete="cc-exp" inputmode="numeric"
+                 maxlength="5" placeholder="MM/YY" aria-describedby="expiry-error">
+          <p class="error" id="expiry-error" aria-live="polite"></p>
+        </div>
+      </fieldset>
+
+      <div class="actions">
+        <p class="status" id="save-status" role="status" aria-live="polite"></p>
+        <button class="btn btn-quiet" type="button" id="cancel">Cancel</button>
+        <button class="btn" type="submit">Save changes</button>
+      </div>
+    </form>
+  </div>
+</dialog>
+
+<script>
+(function () {
+  var KEY = "fernhouse-theme";
+  var root = document.documentElement;
+  var dialog = document.getElementById("settings");
+  var openBtn = document.getElementById("open-settings");
+  var form = document.getElementById("account-form");
+  var email = document.getElementById("email");
+  var expiry = document.getElementById("expiry");
+  var status = document.getElementById("save-status");
+  var reduceMotion = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)");
+
+  /* ---------- Theme ---------- */
+  function setTheme(t) {
+    root.setAttribute("data-theme", t);
+    try { localStorage.setItem(KEY, t); } catch (e) {}
+  }
+  function syncThemeRadios() {
+    var current = root.getAttribute("data-theme") || "light";
+    document.getElementById("theme-" + current).checked = true;
+  }
+  document.querySelectorAll('input[name="theme"]').forEach(function (r) {
+    r.addEventListener("change", function () { if (r.checked) setTheme(r.value); });
+  });
+
+  /* ---------- Dialog open / close ---------- */
+  function openDialog() {
+    syncThemeRadios();
+    status.textContent = "";
+    dialog.classList.remove("closing");
+    if (typeof dialog.showModal === "function") dialog.showModal();
+    else dialog.setAttribute("open", "");
+    email.focus();
+  }
+  function closeDialog() {
+    if (!dialog.open || dialog.classList.contains("closing")) return;
+    if (reduceMotion && reduceMotion.matches) { finishClose(); return; }
+    dialog.classList.add("closing");
+    var done = false;
+    function end() { if (done) return; done = true; finishClose(); }
+    dialog.addEventListener("animationend", end, { once: true });
+    setTimeout(end, 300); // fallback if animationend never fires
+  }
+  function finishClose() {
+    dialog.classList.remove("closing");
+    if (typeof dialog.close === "function") dialog.close();
+    else dialog.removeAttribute("open");
+    openBtn.focus();
+  }
+
+  openBtn.addEventListener("click", openDialog);
+  document.getElementById("close-settings").addEventListener("click", closeDialog);
+  document.getElementById("cancel").addEventListener("click", closeDialog);
+  // Escape: run our animated close instead of the instant native one.
+  dialog.addEventListener("cancel", function (e) { e.preventDefault(); closeDialog(); });
+  // Click on the backdrop (outside the dialog box) closes it.
+  dialog.addEventListener("click", function (e) {
+    if (e.target !== dialog) return;
+    var r = dialog.getBoundingClientRect();
+    var inside = e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
+    if (!inside) closeDialog();
+  });
+
+  /* ---------- Validation ---------- */
+  function validateEmail() {
+    var v = email.value.trim();
+    if (!v) return "Enter your email address so we can send shipping updates.";
+    if (/\s/.test(v)) return "Email addresses can't contain spaces.";
+    var at = v.indexOf("@");
+    if (at < 1 || at !== v.lastIndexOf("@")) return "Include one @ between the name and the domain, like you@example.com.";
+    var domain = v.slice(at + 1);
+    if (!domain) return "Add the part after the @, like example.com.";
+    if (!/^[^.]+(\.[^.]+)+$/.test(domain) || !/\.[a-z]{2,}$/i.test(domain))
+      return "The domain after the @ looks incomplete. Check it ends with something like .com.";
+    return "";
+  }
+
+  function validateExpiry() {
+    var v = expiry.value.trim();
+    if (!v) return "Enter the expiry date printed on your card, as MM/YY.";
+    var m = /^(\d{2})\/(\d{2})$/.exec(v);
+    if (!m) return "Use the format MM/YY, for example 04/28.";
+    var month = parseInt(m[1], 10);
+    var year = 2000 + parseInt(m[2], 10);
+    if (month < 1 || month > 12) return "The month must be between 01 and 12.";
+    var now = new Date();
+    var nowY = now.getFullYear(), nowM = now.getMonth() + 1;
+    if (year < nowY || (year === nowY && month < nowM))
+      return "This card expired in " + m[1] + "/" + m[2] + ". Use a card that's still valid.";
+    if (year > nowY + 20) return "That date is more than 20 years away. Check the year on your card.";
+    return "";
+  }
+
+  function show(input, msg) {
+    var err = document.getElementById(input.id + "-error");
+    err.textContent = msg;
+    if (msg) input.setAttribute("aria-invalid", "true");
+    else input.removeAttribute("aria-invalid");
+    return !msg;
+  }
+
+  // Validate on blur; once a field has shown an error, re-check as the user types.
+  [[email, validateEmail], [expiry, validateExpiry]].forEach(function (pair) {
+    var input = pair[0], fn = pair[1];
+    input.addEventListener("blur", function () { if (input.value.trim()) show(input, fn()); });
+    input.addEventListener("input", function () {
+      status.textContent = "";
+      if (input.getAttribute("aria-invalid") === "true") show(input, fn());
+    });
+  });
+
+  // Expiry: auto-insert the slash and keep only digits.
+  expiry.addEventListener("input", function (e) {
+    var digits = expiry.value.replace(/\D/g, "").slice(0, 4);
+    var deleting = e.inputType && e.inputType.indexOf("delete") === 0;
+    if (digits.length === 1 && digits > "1") digits = "0" + digits; // "4" -> "04"
+    var out = digits;
+    if (digits.length > 2) out = digits.slice(0, 2) + "/" + digits.slice(2);
+    else if (digits.length === 2 && !deleting) out = digits + "/";
+    expiry.value = out;
+  });
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var okEmail = show(email, validateEmail());
+    var okExp = show(expiry, validateExpiry());
+    if (!okEmail) { email.focus(); status.textContent = ""; return; }
+    if (!okExp) { expiry.focus(); status.textContent = ""; return; }
+    status.textContent = "Changes saved.";
+  });
+})();
+</script>
+</body>
+</html>

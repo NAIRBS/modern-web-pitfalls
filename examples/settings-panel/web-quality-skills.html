@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-hQfetR/JSgmCHh3A+K318lXtyqLIUrmGQuGKPgUTV0Q=' 'sha256-lPHc6waKtgxtGH4bvkp3A0DiYqCm6QmspvjVNwXAPHA='; style-src 'sha256-5NjplPHDEmLLtbnn+im+j1GxSWM042LbkQq3e9flqdI='; img-src 'self' data:; base-uri 'none'; form-action 'none'; object-src 'none'; require-trusted-types-for 'script'; trusted-types 'none'">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <title>Account Settings | Theme and Payment Preferences</title>
+  <meta name="description" content="Open the settings dialog to switch between light and dark themes, which are remembered across visits, and update your email and card expiry date.">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#f6f7fb">
+  <script>
+    /* Apply the saved theme before first paint to avoid a flash of the wrong theme. */
+    (function () {
+      var theme = null;
+      try { theme = localStorage.getItem('settings-panel:theme'); } catch (e) { /* storage unavailable */ }
+      if (theme !== 'light' && theme !== 'dark') {
+        theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
+  <style>
+    :root,
+    :root[data-theme="light"] {
+      color-scheme: light;
+      --bg: #f6f7fb;
+      --surface: #ffffff;
+      --text: #1a1d29;        /* 15.9:1 on --bg */
+      --muted: #4a5068;       /* 7.6:1 on --surface */
+      --border: #767c93;      /* 4.2:1 on --surface, >= 3:1 for UI */
+      --accent: #3346c8;      /* 7.0:1 white text on accent */
+      --accent-text: #ffffff;
+      --error: #b3261e;       /* 6.5:1 on --surface */
+      --success: #1d6b38;     /* 6.6:1 on --surface */
+      --focus: #3346c8;
+      --backdrop: rgb(16 18 28 / 0.55);
+      --hero-glow: #dfe3ff;
+      --shadow: 0 24px 60px rgb(16 18 28 / 0.25);
+    }
+    :root[data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #11131c;
+      --surface: #1c1f2c;
+      --text: #eef0f8;        /* 15.2:1 on --bg */
+      --muted: #b6bbd0;       /* 8.6:1 on --surface */
+      --border: #8a90a8;      /* 4.9:1 on --surface */
+      --accent: #9fadff;      /* 8.4:1 dark text on accent */
+      --accent-text: #0d1030;
+      --error: #ffb4ab;       /* 9.6:1 on --surface */
+      --success: #8fd9a8;     /* 9.9:1 on --surface */
+      --focus: #9fadff;
+      --backdrop: rgb(0 0 0 / 0.65);
+      --hero-glow: #262c55;
+      --shadow: 0 24px 60px rgb(0 0 0 / 0.5);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    html {
+      /* Reserve the scrollbar gutter so locking scroll while the dialog is open does not shift layout. */
+      scrollbar-gutter: stable;
+    }
+    html.dialog-open { overflow: hidden; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-size: 1rem;
+      line-height: 1.5;
+      color: var(--text);
+      background: var(--bg);
+    }
+
+    :focus { outline: none; }
+    :focus-visible {
+      outline: 3px solid var(--focus);
+      outline-offset: 3px;
+    }
+
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .skip-link {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 100;
+      padding: 0.75rem 1rem;
+      background: var(--text);
+      color: var(--bg);
+      transform: translateY(-120%);
+    }
+    .skip-link:focus { transform: translateY(0); }
+
+    /* Hero */
+    .hero {
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: grid;
+      place-items: center;
+      padding: 2rem 1rem;
+      background:
+        radial-gradient(ellipse at 50% 30%, var(--hero-glow), transparent 65%),
+        var(--bg);
+      text-align: center;
+    }
+    .hero__inner { max-width: 40rem; }
+    .hero h1 {
+      margin: 0 0 1rem;
+      font-size: clamp(2.25rem, 6vw + 1rem, 4.5rem);
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+    }
+    .hero p {
+      margin: 0 auto 2rem;
+      max-width: 32rem;
+      font-size: 1.125rem;
+      color: var(--muted);
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      min-height: 48px;
+      min-width: 48px;
+      padding: 0.75rem 1.5rem;
+      border: 2px solid transparent;
+      border-radius: 999px;
+      font: inherit;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 150ms ease, background-color 150ms ease;
+    }
+    .btn--primary {
+      background: var(--accent);
+      color: var(--accent-text);
+    }
+    .btn--primary:hover { transform: translateY(-1px); }
+    .btn--primary:active { transform: translateY(0); }
+    .btn--ghost {
+      background: transparent;
+      color: var(--text);
+      border-color: var(--border);
+    }
+    .btn svg { width: 1.25rem; height: 1.25rem; flex: none; }
+
+    .icon-btn {
+      display: inline-grid;
+      place-items: center;
+      width: 44px;
+      height: 44px;
+      padding: 0;
+      border: 0;
+      border-radius: 50%;
+      background: transparent;
+      color: var(--text);
+      cursor: pointer;
+    }
+    .icon-btn:hover { background: color-mix(in srgb, var(--text) 10%, transparent); }
+    .icon-btn svg { width: 1.5rem; height: 1.5rem; }
+
+    /* Dialog */
+    .settings {
+      width: min(30rem, calc(100vw - 2rem));
+      max-height: calc(100dvh - 2rem);
+      padding: 0;
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      background: var(--surface);
+      color: var(--text);
+      box-shadow: var(--shadow);
+      overflow: auto;
+      overscroll-behavior: contain;
+    }
+    .settings::backdrop { background: var(--backdrop); }
+
+    .settings[open] { animation: dialog-in 220ms cubic-bezier(0.2, 0.9, 0.3, 1.1); }
+    .settings[open]::backdrop { animation: fade-in 220ms ease-out; }
+    .settings.is-closing { animation: dialog-out 160ms ease-in forwards; }
+    .settings.is-closing::backdrop { animation: fade-out 160ms ease-in forwards; }
+
+    @keyframes dialog-in {
+      from { opacity: 0; transform: translateY(16px) scale(0.96); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    @keyframes dialog-out {
+      from { opacity: 1; transform: translateY(0) scale(1); }
+      to   { opacity: 0; transform: translateY(12px) scale(0.97); }
+    }
+    @keyframes fade-in  { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes fade-out { from { opacity: 1; } to { opacity: 0; } }
+
+    .settings__inner { padding: 1.5rem; }
+    .settings__header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .settings__header h2 { margin: 0; font-size: 1.5rem; }
+    .settings__intro { margin: 0 0 1.5rem; color: var(--muted); }
+
+    fieldset {
+      margin: 0 0 1.5rem;
+      padding: 0;
+      border: 0;
+    }
+    legend, .field label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+
+    /* Theme switcher: native radios styled as a segmented control */
+    .segmented {
+      position: relative;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.25rem;
+      padding: 0.25rem;
+      border: 1px solid var(--border);
+      border-radius: 0.75rem;
+    }
+    .segmented input {
+      position: absolute;
+      opacity: 0;
+      width: 1px;
+      height: 1px;
+    }
+    .segmented label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      min-height: 44px;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      font-weight: 500;
+    }
+    .segmented svg { width: 1.125rem; height: 1.125rem; }
+    .segmented input:checked + label {
+      background: var(--accent);
+      color: var(--accent-text);
+      font-weight: 600;
+    }
+    .segmented input:focus-visible + label {
+      outline: 3px solid var(--focus);
+      outline-offset: 2px;
+    }
+
+    .section-title {
+      margin: 0 0 1rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid color-mix(in srgb, var(--border) 50%, transparent);
+      font-size: 1.125rem;
+    }
+
+    .field { margin-bottom: 0.5rem; }
+    .hint {
+      margin: 0 0 0.5rem;
+      font-size: 0.875rem;
+      color: var(--muted);
+    }
+    .field input {
+      display: block;
+      width: 100%;
+      min-height: 48px;
+      padding: 0.625rem 0.875rem;
+      border: 2px solid var(--border);
+      border-radius: 0.5rem;
+      background: var(--surface);
+      color: var(--text);
+      font: inherit;
+      font-size: 1rem; /* >= 16px prevents iOS zoom on focus */
+    }
+    .field input:focus-visible {
+      outline: 3px solid var(--focus);
+      outline-offset: 1px;
+    }
+    .field input[aria-invalid="true"] { border-color: var(--error); }
+    .field--narrow input { max-width: 9rem; }
+
+    /* Reserved slot: error text never pushes content around (no layout shift). */
+    .error {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.375rem;
+      min-height: 1.5rem;
+      margin: 0.375rem 0 0.5rem;
+      font-size: 0.875rem;
+      color: var(--error);
+    }
+    .error svg { width: 1rem; height: 1rem; margin-top: 0.15rem; flex: none; }
+    .error:empty { visibility: hidden; }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 0.75rem;
+      margin-top: 0.5rem;
+    }
+    .status {
+      min-height: 1.5rem;
+      margin: 0.75rem 0 0;
+      font-size: 0.875rem;
+      color: var(--success);
+      text-align: right;
+    }
+
+    @media (max-width: 30rem) {
+      .settings__inner { padding: 1.25rem 1rem; }
+      .actions .btn { flex: 1 1 auto; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+
+    @media (forced-colors: active) {
+      /* Backgrounds are dropped in forced colors, so mark the selected theme with a border. */
+      .segmented input:checked + label { outline: 2px solid Highlight; outline-offset: -2px; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+
+  <main id="main-content" tabindex="-1">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero__inner">
+        <h1 id="hero-title">Make this space yours</h1>
+        <p>Choose a light or dark theme and keep your billing details up to date. Your theme choice is remembered the next time you visit.</p>
+        <button type="button" class="btn btn--primary" id="open-settings" aria-haspopup="dialog" aria-controls="settings-dialog">
+          <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3h0a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8v0a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+          Settings
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <dialog class="settings" id="settings-dialog" aria-labelledby="settings-title" aria-describedby="settings-intro">
+    <div class="settings__inner">
+      <div class="settings__header">
+        <h2 id="settings-title">Settings</h2>
+        <button type="button" class="icon-btn" id="close-settings" aria-label="Close settings">
+          <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+      </div>
+      <p class="settings__intro" id="settings-intro">Theme changes apply right away. Press Save to update your contact and card details.</p>
+
+      <fieldset>
+        <legend>Theme</legend>
+        <div class="segmented">
+          <input type="radio" name="theme" id="theme-light" value="light">
+          <label for="theme-light">
+            <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+            Light
+          </label>
+          <input type="radio" name="theme" id="theme-dark" value="dark">
+          <label for="theme-dark">
+            <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+            Dark
+          </label>
+        </div>
+      </fieldset>
+
+      <form id="settings-form" novalidate>
+        <h3 class="section-title">Billing details</h3>
+
+        <div class="field">
+          <label for="email">Email address</label>
+          <p class="hint" id="email-hint">We send receipts here, for example name@example.com.</p>
+          <input type="email" id="email" name="email" autocomplete="email" inputmode="email" spellcheck="false" required aria-describedby="email-hint email-error">
+          <p class="error" id="email-error" aria-live="polite"></p>
+        </div>
+
+        <div class="field field--narrow">
+          <label for="expiry">Card expiry date</label>
+          <p class="hint" id="expiry-hint">Two-digit month and year, shown as MM/YY on the front of your card.</p>
+          <input type="text" id="expiry" name="expiry" autocomplete="cc-exp" inputmode="numeric" maxlength="5" placeholder="MM/YY" required aria-describedby="expiry-hint expiry-error">
+          <p class="error" id="expiry-error" aria-live="polite"></p>
+        </div>
+
+        <div class="actions">
+          <button type="button" class="btn btn--ghost" id="cancel-settings">Cancel</button>
+          <button type="submit" class="btn btn--primary">Save</button>
+        </div>
+        <p class="status" id="form-status" role="status" aria-live="polite" aria-atomic="true"></p>
+      </form>
+    </div>
+  </dialog>
+
+  <script>
+    (function () {
+      'use strict';
+
+      var STORAGE_KEY = 'settings-panel:theme';
+      var root = document.documentElement;
+      var dialog = document.getElementById('settings-dialog');
+      var openBtn = document.getElementById('open-settings');
+      var closeBtn = document.getElementById('close-settings');
+      var cancelBtn = document.getElementById('cancel-settings');
+      var form = document.getElementById('settings-form');
+      var emailInput = document.getElementById('email');
+      var expiryInput = document.getElementById('expiry');
+      var statusEl = document.getElementById('form-status');
+      var themeColorMeta = document.querySelector('meta[name="theme-color"]');
+      var themeRadios = document.querySelectorAll('input[name="theme"]');
+      var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+      /* ---------- Theme ---------- */
+
+      function readStoredTheme() {
+        try { return localStorage.getItem(STORAGE_KEY); } catch (e) { return null; }
+      }
+
+      function applyTheme(theme) {
+        root.setAttribute('data-theme', theme);
+        themeColorMeta.setAttribute('content', theme === 'dark' ? '#11131c' : '#f6f7fb');
+        themeRadios.forEach(function (radio) { radio.checked = radio.value === theme; });
+      }
+
+      function saveTheme(theme) {
+        try { localStorage.setItem(STORAGE_KEY, theme); } catch (e) { /* private mode or storage disabled: theme still applies for this visit */ }
+      }
+
+      applyTheme(root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light');
+
+      themeRadios.forEach(function (radio) {
+        radio.addEventListener('change', function () {
+          if (!radio.checked) return;
+          applyTheme(radio.value);
+          saveTheme(radio.value);
+        });
+      });
+
+      // Keep other open tabs in sync.
+      window.addEventListener('storage', function (event) {
+        if (event.key === STORAGE_KEY && (event.newValue === 'light' || event.newValue === 'dark')) {
+          applyTheme(event.newValue);
+        }
+      });
+
+      // Follow the OS setting only while the user has not made an explicit choice.
+      var darkQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      if (typeof darkQuery.addEventListener === 'function') {
+        darkQuery.addEventListener('change', function (event) {
+          var stored = readStoredTheme();
+          if (stored !== 'light' && stored !== 'dark') applyTheme(event.matches ? 'dark' : 'light');
+        });
+      }
+
+      /* ---------- Dialog ---------- */
+
+      var closing = false;
+
+      function openDialog() {
+        if (dialog.open) return;
+        dialog.classList.remove('is-closing');
+        closing = false;
+        statusEl.textContent = '';
+        root.classList.add('dialog-open');
+        dialog.showModal(); // native modal: focus containment, inert background, Escape handling
+      }
+
+      function finishClose() {
+        dialog.classList.remove('is-closing');
+        closing = false;
+        if (dialog.open) dialog.close();
+      }
+
+      function requestClose() {
+        if (!dialog.open || closing) return;
+        if (reducedMotion.matches) { finishClose(); return; }
+        closing = true;
+        dialog.classList.add('is-closing');
+        dialog.addEventListener('animationend', function onEnd(event) {
+          if (event.target !== dialog) return;
+          dialog.removeEventListener('animationend', onEnd);
+          finishClose();
+        });
+      }
+
+      openBtn.addEventListener('click', openDialog);
+      closeBtn.addEventListener('click', requestClose);
+      cancelBtn.addEventListener('click', requestClose);
+
+      // Escape: animate out instead of closing abruptly.
+      dialog.addEventListener('cancel', function (event) {
+        event.preventDefault();
+        requestClose();
+      });
+
+      // Click on the backdrop closes. Require both press and release outside the content,
+      // so selecting text in a field and releasing over the backdrop does not discard the dialog.
+      var pressedOnBackdrop = false;
+      dialog.addEventListener('pointerdown', function (event) {
+        pressedOnBackdrop = event.target === dialog;
+      });
+      dialog.addEventListener('click', function (event) {
+        if (event.target === dialog && pressedOnBackdrop) requestClose();
+        pressedOnBackdrop = false;
+      });
+
+      dialog.addEventListener('close', function () {
+        root.classList.remove('dialog-open');
+        openBtn.focus(); // return focus to the trigger
+      });
+
+      /* ---------- Validation ---------- */
+
+      var SVG_NS = 'http://www.w3.org/2000/svg';
+
+      // Built with DOM APIs (no HTML string sinks) so it works under Trusted Types.
+      function createErrorIcon() {
+        var svg = document.createElementNS(SVG_NS, 'svg');
+        svg.setAttribute('aria-hidden', 'true');
+        svg.setAttribute('focusable', 'false');
+        svg.setAttribute('viewBox', '0 0 24 24');
+        svg.setAttribute('fill', 'none');
+        svg.setAttribute('stroke', 'currentColor');
+        svg.setAttribute('stroke-width', '2.5');
+        svg.setAttribute('stroke-linecap', 'round');
+        var circle = document.createElementNS(SVG_NS, 'circle');
+        circle.setAttribute('cx', '12');
+        circle.setAttribute('cy', '12');
+        circle.setAttribute('r', '10');
+        var path = document.createElementNS(SVG_NS, 'path');
+        path.setAttribute('d', 'M12 7v6M12 17h.01');
+        svg.append(circle, path);
+        return svg;
+      }
+
+      function setError(input, message) {
+        var errorEl = document.getElementById(input.id + '-error');
+        errorEl.replaceChildren();
+        if (message) {
+          var text = document.createElement('span');
+          text.textContent = message; // text API only: never interpreted as markup
+          errorEl.append(createErrorIcon(), text);
+          input.setAttribute('aria-invalid', 'true');
+        } else {
+          input.removeAttribute('aria-invalid');
+        }
+      }
+
+      function validateEmail() {
+        var value = emailInput.value.trim();
+        if (!value) return 'Enter your email address.';
+        if (value.indexOf('@') === -1) return 'Your email address needs an "@", for example name@example.com.';
+        var parts = value.split('@');
+        if (parts.length > 2) return 'Your email address can only contain one "@".';
+        if (!parts[0]) return 'Add the part before the "@", for example name@example.com.';
+        if (!parts[1]) return 'Add the domain after the "@", for example name@example.com.';
+        if (/\s/.test(value)) return 'Remove the spaces from your email address.';
+        if (!/^[^@]+@[^@.]+(\.[^@.]+)+$/.test(value)) return 'Check the domain after the "@". It should look like example.com.';
+        if (!emailInput.checkValidity()) return 'Enter an email address in the format name@example.com.';
+        return '';
+      }
+
+      function validateExpiry() {
+        var value = expiryInput.value.trim();
+        if (!value) return 'Enter the expiry date from your card.';
+        var match = /^(\d{2})\/(\d{2})$/.exec(value);
+        if (!match) return 'Enter the expiry date as MM/YY, for example 08/29.';
+        var month = parseInt(match[1], 10);
+        var year = 2000 + parseInt(match[2], 10);
+        if (month < 1 || month > 12) return 'The month must be between 01 and 12.';
+        var now = new Date();
+        var currentYear = now.getFullYear();
+        var currentMonth = now.getMonth() + 1;
+        // Cards are valid through the last day of their expiry month.
+        if (year < currentYear || (year === currentYear && month < currentMonth)) {
+          return 'This card has expired. Use a card with a future expiry date.';
+        }
+        if (year > currentYear + 20) return 'That year is too far in the future. Check the date on your card.';
+        return '';
+      }
+
+      var validators = { email: validateEmail, expiry: validateExpiry };
+
+      // Validate on blur (not while typing); once a field shows an error, re-check as the user fixes it.
+      [emailInput, expiryInput].forEach(function (input) {
+        input.addEventListener('blur', function () {
+          if (input.value.trim()) setError(input, validators[input.id]());
+        });
+        input.addEventListener('input', function () {
+          statusEl.textContent = '';
+          if (input.getAttribute('aria-invalid') === 'true') setError(input, validators[input.id]());
+        });
+      });
+
+      // Expiry: digits only, auto-insert the slash, keep deletion natural.
+      expiryInput.addEventListener('input', function (event) {
+        var digits = expiryInput.value.replace(/\D/g, '').slice(0, 4);
+        if (digits.length === 1 && digits > '1') digits = '0' + digits; // "4" -> "04"
+        var deleting = event.inputType && event.inputType.indexOf('delete') === 0;
+        var formatted = digits;
+        if (digits.length > 2) formatted = digits.slice(0, 2) + '/' + digits.slice(2);
+        else if (digits.length === 2 && !deleting) formatted = digits + '/';
+        if (formatted !== expiryInput.value) expiryInput.value = formatted;
+      });
+
+      form.addEventListener('submit', function (event) {
+        event.preventDefault();
+        statusEl.textContent = '';
+        var firstInvalid = null;
+        [emailInput, expiryInput].forEach(function (input) {
+          var message = validators[input.id]();
+          setError(input, message);
+          if (message && !firstInvalid) firstInvalid = input;
+        });
+
+        if (firstInvalid) {
+          firstInvalid.focus();
+          return;
+        }
+
+        // Demo only: details would be sent to a server here. Card data is never written to storage.
+        requestAnimationFrame(function () {
+          statusEl.textContent = 'Saved. Receipts will go to ' + emailInput.value.trim() + '.';
+        });
+      });
+    })();
+  </script>
+</body>
+</html>
