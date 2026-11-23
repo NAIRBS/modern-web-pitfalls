@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Settings Panel</title>
+<script>
+  // Apply saved theme before first paint to avoid a flash of the wrong theme.
+  (function () {
+    var theme = null;
+    try { theme = localStorage.getItem('theme'); } catch (e) {}
+    if (theme !== 'light' && theme !== 'dark') {
+      theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    document.documentElement.dataset.theme = theme;
+  })();
+</script>
+<style>
+  :root {
+    --bg: #f7f7f5;
+    --surface: #ffffff;
+    --text: #1b1c1f;
+    --muted: #5d6068;
+    --border: #d9dade;
+    --accent: #3b5bdb;
+    --accent-text: #ffffff;
+    --danger: #c92a2a;
+    --backdrop: rgba(20, 22, 28, 0.45);
+    --shadow: 0 20px 50px rgba(0, 0, 0, 0.18);
+    color-scheme: light;
+  }
+  :root[data-theme="dark"] {
+    --bg: #121317;
+    --surface: #1d1f25;
+    --text: #ecedf0;
+    --muted: #a3a6ae;
+    --border: #363943;
+    --accent: #748ffc;
+    --accent-text: #0e1016;
+    --danger: #ff8787;
+    --backdrop: rgba(0, 0, 0, 0.6);
+    --shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    color-scheme: dark;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html, body { margin: 0; }
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    transition: background-color 0.2s, color 0.2s;
+  }
+
+  .hero {
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: grid;
+    place-content: center;
+    gap: 1.25rem;
+    padding: 2rem 1rem;
+    text-align: center;
+  }
+  .hero h1 {
+    margin: 0;
+    font-size: clamp(2rem, 6vw, 3.5rem);
+    letter-spacing: -0.02em;
+  }
+  .hero p { margin: 0; color: var(--muted); max-width: 40ch; }
+
+  button {
+    font: inherit;
+    cursor: pointer;
+    border-radius: 8px;
+    padding: 0.65rem 1.25rem;
+    border: 1px solid transparent;
+  }
+  button:focus-visible, input:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: var(--accent-text);
+    font-weight: 600;
+  }
+  .btn-primary:hover { filter: brightness(1.08); }
+  .btn-ghost {
+    background: transparent;
+    color: var(--text);
+    border-color: var(--border);
+  }
+  .hero .btn-primary { justify-self: center; }
+
+  /* Dialog */
+  dialog {
+    width: min(440px, calc(100vw - 2rem));
+    max-height: calc(100dvh - 2rem);
+    padding: 0;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: var(--surface);
+    color: var(--text);
+    box-shadow: var(--shadow);
+    overflow: auto;
+  }
+  dialog::backdrop { background: var(--backdrop); }
+
+  dialog[open] { animation: dialog-in 0.22s cubic-bezier(.2,.8,.3,1) both; }
+  dialog[open]::backdrop { animation: fade-in 0.22s ease both; }
+  dialog.closing { animation: dialog-out 0.16s ease-in both; }
+  dialog.closing::backdrop { animation: fade-out 0.16s ease-in both; }
+
+  @keyframes dialog-in {
+    from { opacity: 0; transform: translateY(12px) scale(0.97); }
+    to   { opacity: 1; transform: none; }
+  }
+  @keyframes dialog-out {
+    from { opacity: 1; transform: none; }
+    to   { opacity: 0; transform: translateY(8px) scale(0.97); }
+  }
+  @keyframes fade-in  { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes fade-out { from { opacity: 1; } to { opacity: 0; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    dialog[open], dialog[open]::backdrop,
+    dialog.closing, dialog.closing::backdrop { animation-duration: 0.01ms; }
+  }
+
+  .dialog-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .dialog-header h2 { margin: 0; font-size: 1.15rem; }
+  .icon-btn {
+    padding: 0.25rem 0.55rem;
+    background: transparent;
+    color: var(--muted);
+    font-size: 1.4rem;
+    line-height: 1;
+  }
+  .icon-btn:hover { color: var(--text); }
+
+  .dialog-body { padding: 1.25rem; display: grid; gap: 1.5rem; }
+
+  fieldset { border: 0; margin: 0; padding: 0; }
+  legend, .label {
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 0.4rem;
+    padding: 0;
+  }
+
+  .segmented {
+    display: inline-flex;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .segmented input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .segmented label {
+    padding: 0.45rem 1rem;
+    cursor: pointer;
+    user-select: none;
+  }
+  .segmented label + input + label { border-left: 1px solid var(--border); }
+  .segmented input:checked + label {
+    background: var(--accent);
+    color: var(--accent-text);
+  }
+  .segmented input:focus-visible + label {
+    outline: 2px solid var(--accent);
+    outline-offset: -2px;
+  }
+
+  .field { display: grid; gap: 0.3rem; }
+  .field + .field { margin-top: 1rem; }
+  .field label { font-weight: 600; font-size: 0.9rem; }
+  .hint { font-size: 0.8rem; color: var(--muted); }
+  input[type="email"], input[type="text"] {
+    font: inherit;
+    width: 100%;
+    padding: 0.6rem 0.75rem;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text);
+  }
+  #expiry { max-width: 8rem; }
+  input[aria-invalid="true"] { border-color: var(--danger); }
+  .error {
+    color: var(--danger);
+    font-size: 0.82rem;
+    min-height: 1.2em;
+  }
+
+  .dialog-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    padding: 1rem 1.25rem;
+    border-top: 1px solid var(--border);
+  }
+  .status {
+    margin-right: auto;
+    align-self: center;
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+</style>
+</head>
+<body>
+
+<main>
+  <section class="hero">
+    <h1>Welcome back</h1>
+    <p>Adjust your appearance and billing details from the settings panel.</p>
+    <button type="button" class="btn-primary" id="open-settings" aria-haspopup="dialog">Settings</button>
+  </section>
+</main>
+
+<dialog id="settings" aria-labelledby="settings-title">
+  <form id="settings-form" novalidate>
+    <div class="dialog-header">
+      <h2 id="settings-title">Settings</h2>
+      <button type="button" class="icon-btn" id="close-settings" aria-label="Close settings">&times;</button>
+    </div>
+
+    <div class="dialog-body">
+      <fieldset>
+        <legend>Theme</legend>
+        <div class="segmented">
+          <input type="radio" name="theme" id="theme-light" value="light">
+          <label for="theme-light">Light</label>
+          <input type="radio" name="theme" id="theme-dark" value="dark">
+          <label for="theme-dark">Dark</label>
+        </div>
+      </fieldset>
+
+      <div>
+        <div class="field">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" autocomplete="email"
+                 placeholder="you@example.com" aria-describedby="email-error" required>
+          <div class="error" id="email-error" aria-live="polite"></div>
+        </div>
+
+        <div class="field">
+          <label for="expiry">Card expiry</label>
+          <span class="hint" id="expiry-hint">Format MM/YY</span>
+          <input type="text" id="expiry" name="expiry" inputmode="numeric"
+                 autocomplete="cc-exp" placeholder="MM/YY" maxlength="5"
+                 aria-describedby="expiry-hint expiry-error" required>
+          <div class="error" id="expiry-error" aria-live="polite"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dialog-footer">
+      <span class="status" id="status" role="status"></span>
+      <button type="button" class="btn-ghost" id="cancel">Cancel</button>
+      <button type="submit" class="btn-primary">Save</button>
+    </div>
+  </form>
+</dialog>
+
+<script>
+(function () {
+  var dialog = document.getElementById('settings');
+  var openBtn = document.getElementById('open-settings');
+  var form = document.getElementById('settings-form');
+  var email = document.getElementById('email');
+  var expiry = document.getElementById('expiry');
+  var emailError = document.getElementById('email-error');
+  var expiryError = document.getElementById('expiry-error');
+  var status = document.getElementById('status');
+  var root = document.documentElement;
+
+  /* ---------- Theme ---------- */
+  function setTheme(theme) {
+    root.dataset.theme = theme;
+    try { localStorage.setItem('theme', theme); } catch (e) {}
+  }
+  function syncThemeRadios() {
+    var current = root.dataset.theme === 'dark' ? 'dark' : 'light';
+    document.getElementById('theme-' + current).checked = true;
+  }
+  form.querySelectorAll('input[name="theme"]').forEach(function (radio) {
+    radio.addEventListener('change', function () { setTheme(radio.value); });
+  });
+  syncThemeRadios();
+
+  /* ---------- Dialog open/close with animation ---------- */
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  function openDialog() {
+    syncThemeRadios();
+    status.textContent = '';
+    dialog.classList.remove('closing');
+    dialog.showModal();
+  }
+
+  function closeDialog() {
+    if (!dialog.open || dialog.classList.contains('closing')) return;
+    if (reduceMotion.matches) { dialog.close(); return; }
+    dialog.classList.add('closing');
+    var done = false;
+    function finish() {
+      if (done) return;
+      done = true;
+      dialog.classList.remove('closing');
+      dialog.close();
+    }
+    dialog.addEventListener('animationend', finish, { once: true });
+    setTimeout(finish, 250); // fallback if animationend never fires
+  }
+
+  openBtn.addEventListener('click', openDialog);
+  document.getElementById('close-settings').addEventListener('click', closeDialog);
+  document.getElementById('cancel').addEventListener('click', closeDialog);
+
+  // Escape: intercept so we can animate out.
+  dialog.addEventListener('cancel', function (e) {
+    e.preventDefault();
+    closeDialog();
+  });
+
+  // Click on backdrop closes.
+  dialog.addEventListener('click', function (e) {
+    if (e.target !== dialog) return;
+    var r = dialog.getBoundingClientRect();
+    var inside = e.clientX >= r.left && e.clientX <= r.right &&
+                 e.clientY >= r.top && e.clientY <= r.bottom;
+    if (!inside) closeDialog();
+  });
+
+  dialog.addEventListener('close', function () { openBtn.focus(); });
+
+  /* ---------- Validation ---------- */
+  function validateEmail() {
+    var v = email.value.trim();
+    var msg = '';
+    if (!v) msg = 'Please enter your email address.';
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v)) {
+      if (v.indexOf('@') === -1) msg = 'Email is missing an "@" sign, e.g. name@example.com.';
+      else msg = 'That doesn’t look like a complete email address, e.g. name@example.com.';
+    }
+    return setError(email, emailError, msg);
+  }
+
+  function validateExpiry() {
+    var v = expiry.value.trim();
+    var msg = '';
+    var m = /^(\d{2})\/(\d{2})$/.exec(v);
+    if (!v) msg = 'Please enter the card expiry date.';
+    else if (!m) msg = 'Use the format MM/YY, e.g. 08/27.';
+    else {
+      var month = parseInt(m[1], 10);
+      var year = 2000 + parseInt(m[2], 10);
+      var now = new Date();
+      var curYear = now.getFullYear();
+      var curMonth = now.getMonth() + 1;
+      if (month < 1 || month > 12) msg = 'Month must be between 01 and 12.';
+      else if (year < curYear || (year === curYear && month < curMonth)) msg = 'This card has expired. Please use a card with a future expiry date.';
+      else if (year > curYear + 20) msg = 'That expiry date is too far in the future. Please check it.';
+    }
+    return setError(expiry, expiryError, msg);
+  }
+
+  function setError(input, el, msg) {
+    el.textContent = msg;
+    if (msg) input.setAttribute('aria-invalid', 'true');
+    else input.removeAttribute('aria-invalid');
+    return !msg;
+  }
+
+  // Auto-format expiry as user types: "0827" -> "08/27", "8" -> "08/" when unambiguous.
+  expiry.addEventListener('input', function (e) {
+    var digits = expiry.value.replace(/\D/g, '').slice(0, 4);
+    if (digits.length === 1 && /[2-9]/.test(digits)) digits = '0' + digits;
+    var deleting = e.inputType && e.inputType.indexOf('delete') === 0;
+    var out = digits;
+    if (digits.length > 2) out = digits.slice(0, 2) + '/' + digits.slice(2);
+    else if (digits.length === 2 && !deleting) out = digits + '/';
+    expiry.value = out;
+    if (expiry.hasAttribute('aria-invalid')) validateExpiry();
+  });
+
+  email.addEventListener('input', function () {
+    if (email.hasAttribute('aria-invalid')) validateEmail();
+  });
+  email.addEventListener('blur', function () { if (email.value) validateEmail(); });
+  expiry.addEventListener('blur', function () { if (expiry.value) validateExpiry(); });
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var okEmail = validateEmail();
+    var okExpiry = validateExpiry();
+    if (!okEmail) { email.focus(); status.textContent = ''; return; }
+    if (!okExpiry) { expiry.focus(); status.textContent = ''; return; }
+    status.textContent = 'Saved.';
+    setTimeout(closeDialog, 600);
+  });
+})();
+</script>
+</body>
+</html>

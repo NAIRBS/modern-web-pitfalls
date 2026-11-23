@@ -9,6 +9,24 @@ security. They don't write broken code. They write code from older habits: hand-
 `touchmove` swipe physics, `setTimeout` task queues, DIY HTML sanitizers, `atob` passkey helpers. The
 platform now has native primitives for all of these. This skill shows the agent what to use instead.
 
+## Before / after
+
+I gave two fresh agents the same prompt: *"a full-height hero, a Settings button that opens an
+animated modal, a light/dark theme switcher that persists, and an email + card-expiry form with
+validation."* One agent had the skill and one didn't.
+
+| | Without skill | With skill |
+|---|---|---|
+| Checklist items passed | **6 / 17** | **17 / 17** |
+| Open/close animation | class toggle + `animationend` + `setTimeout` fallback | pure CSS: `@starting-style` + `transition-behavior: allow-discrete` |
+| Reduced motion | `0.01ms` duration override | motion opted into with `prefers-reduced-motion: no-preference` |
+| Theme | binary toggle, no `<meta name="color-scheme">`, duplicated tokens | Light / Dark / **System**, `light-dark()`, meta tag, tabs synced |
+| Validation | JS `blur` handlers | `:user-invalid` + synced `aria-invalid` |
+| Light dismiss | manual backdrop hit-testing | `closedby="any"` with a fallback |
+
+Full code and every check: [`examples/settings-panel/`](examples/settings-panel/). This was one
+prompt and one run, graded by hand, so treat it as a demo and not a benchmark.
+
 ## What it covers
 
 | # | Area | The usual mistake | What the skill asks for |
@@ -44,6 +62,12 @@ cp -r modern-web-pitfalls/skills/modern-web-pitfalls ~/.claude/skills/
 ```
 
 To use it in one project only, copy it into that project's `.claude/skills/` folder.
+
+### Claude app / Cowork (no git needed)
+
+Download `modern-web-pitfalls-skill.zip` from the
+[latest release](https://github.com/NAIRBS/modern-web-pitfalls/releases/latest). In Claude, go to
+**Customize → Skills → + → Create skill → Upload a skill**, then turn the skill on.
 
 ### Other agents
 

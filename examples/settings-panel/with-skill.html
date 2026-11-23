@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Settings Panel</title>
+  <!--
+    Suggested response headers for this static page (hash-based CSP; compute the sha256 of each
+    inline <script> block at build time):
+      Content-Security-Policy: script-src 'sha256-<theme-boot-hash>' 'sha256-<app-hash>';
+        object-src 'none'; base-uri 'none'; require-trusted-types-for 'script';
+      Cross-Origin-Opener-Policy: same-origin
+  -->
+  <script>
+    // Apply a saved theme before first paint. No saved value = follow the system.
+    try {
+      const t = localStorage.getItem('theme');
+      if (t === 'light' || t === 'dark') document.documentElement.style.colorScheme = t;
+    } catch {}
+  </script>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: light-dark(#f7f7f5, #121214);
+      --surface: light-dark(#ffffff, #1e1e22);
+      --fg: light-dark(#1a1a1a, #ececec);
+      --muted: light-dark(#555a60, #a9adb3);
+      --border: light-dark(#c4c7cc, #4a4d54);
+      --accent: light-dark(#1f5fd1, #8ab4ff);
+      --on-accent: light-dark(#ffffff, #0d1b33);
+      --danger: light-dark(#b3261e, #ff8a80);
+      --success: light-dark(#1b6e34, #7ddc94);
+      --focus: light-dark(#0b3d91, #c7dbff);
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+    }
+    :focus-visible {
+      outline: 3px solid var(--focus);
+      outline-offset: 2px;
+    }
+
+    .hero {
+      min-height: 100svh;
+      display: grid;
+      place-content: center;
+      justify-items: center;
+      gap: 1rem;
+      padding: 2rem 1rem;
+      text-align: center;
+    }
+    .hero h1 { margin: 0; font-size: clamp(2rem, 6vw, 3.5rem); }
+    .hero p { margin: 0; color: var(--muted); max-width: 40ch; }
+
+    button {
+      font: inherit;
+      cursor: pointer;
+      border-radius: 8px;
+      padding: .6rem 1.2rem;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--fg);
+    }
+    button.primary {
+      background: var(--accent);
+      color: var(--on-accent);
+      border-color: var(--accent);
+    }
+
+    /* Dialog: native top layer, enter/exit animated with @starting-style */
+    dialog {
+      width: min(28rem, calc(100% - 2rem));
+      max-height: 90dvh;
+      overflow: auto;
+      overscroll-behavior: contain;
+      padding: 1.5rem;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: var(--surface);
+      color: var(--fg);
+      opacity: 0;
+      transition: opacity .2s, overlay .2s allow-discrete, display .2s allow-discrete;
+    }
+    dialog[open] {
+      opacity: 1;
+      @starting-style { opacity: 0; }
+    }
+    dialog::backdrop {
+      background: rgb(0 0 0 / 0);
+      transition: background-color .2s, overlay .2s allow-discrete, display .2s allow-discrete;
+    }
+    dialog[open]::backdrop {
+      background: rgb(0 0 0 / .45);
+      @starting-style { background: rgb(0 0 0 / 0); }
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      dialog {
+        translate: 0 12px;
+        scale: .97;
+        transition: opacity .2s, translate .2s, scale .2s, overlay .2s allow-discrete, display .2s allow-discrete;
+      }
+      dialog[open] {
+        translate: 0 0;
+        scale: 1;
+        @starting-style { translate: 0 12px; scale: .97; }
+      }
+    }
+
+    .dialog-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .dialog-head h2 { margin: 0; font-size: 1.35rem; }
+    .close { padding: .35rem .75rem; }
+
+    fieldset {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      margin: 0 0 1.25rem;
+      padding: .75rem 1rem 1rem;
+    }
+    legend { font-weight: 600; padding: 0 .25rem; }
+    .theme-options { display: flex; flex-wrap: wrap; gap: .5rem 1.25rem; }
+    .theme-options label { display: inline-flex; align-items: center; gap: .4rem; cursor: pointer; }
+    input[type="radio"] { accent-color: var(--accent); width: 1.1rem; height: 1.1rem; margin: 0; }
+
+    .field { margin-bottom: 1rem; }
+    .field label { display: block; font-weight: 600; }
+    .hint { margin: .1rem 0 .35rem; font-size: .875rem; color: var(--muted); }
+    .field input {
+      width: 100%;
+      font: inherit;
+      padding: .55rem .7rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--bg);
+      color: var(--fg);
+    }
+    .field input:user-invalid {
+      border-color: var(--danger);
+      box-shadow: inset 0 0 0 1px var(--danger);
+    }
+    .field input:autofill {
+      box-shadow: inset 4px 0 0 var(--accent);
+    }
+    .error {
+      margin: .35rem 0 0;
+      font-size: .875rem;
+      color: var(--danger);
+    }
+    .error::before { content: "\26A0\FE0E  "; } /* non-colour cue */
+    .error[hidden] { display: none; }
+
+    .actions { display: flex; justify-content: flex-end; align-items: center; gap: .75rem; }
+    .status { margin: 0 auto 0 0; font-size: .9rem; color: var(--success); min-height: 1.5em; }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="hero" aria-labelledby="hero-title">
+      <h1 id="hero-title">Welcome back</h1>
+      <p>Adjust your theme and account details any time from the settings panel.</p>
+      <button type="button" class="primary" id="open-settings" aria-haspopup="dialog">Settings</button>
+    </section>
+  </main>
+
+  <dialog id="settings" aria-labelledby="settings-title" closedby="any">
+    <div class="dialog-head">
+      <h2 id="settings-title">Settings</h2>
+      <button type="button" class="close" id="close-settings" aria-label="Close settings">Close</button>
+    </div>
+
+    <fieldset>
+      <legend>Theme</legend>
+      <div class="theme-options">
+        <label><input type="radio" name="theme" value="light"> Light</label>
+        <label><input type="radio" name="theme" value="dark"> Dark</label>
+        <label><input type="radio" name="theme" value="system"> System</label>
+      </div>
+    </fieldset>
+
+    <form id="account-form" autocomplete="on">
+      <div class="field">
+        <label for="email">Email</label>
+        <p id="email-hint" class="hint">We'll send receipts here, e.g. name@example.com</p>
+        <input id="email" name="email" type="email" autocomplete="email" required
+               aria-describedby="email-hint email-error">
+        <p id="email-error" class="error" hidden></p>
+      </div>
+
+      <div class="field">
+        <label for="exp">Card expiry date</label>
+        <p id="exp-hint" class="hint">Format: MM/YY</p>
+        <input id="exp" name="cc-exp" type="text" autocomplete="cc-exp" inputmode="numeric"
+               maxlength="5" pattern="(0[1-9]|1[0-2])\/\d{2}" required
+               aria-describedby="exp-hint exp-error">
+        <p id="exp-error" class="error" hidden></p>
+      </div>
+
+      <div class="actions">
+        <p class="status" id="status" role="status"></p>
+        <button type="submit" class="primary">Save</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script>
+    const dialog = document.getElementById('settings');
+    const openBtn = document.getElementById('open-settings');
+    const closeBtn = document.getElementById('close-settings');
+    const form = document.getElementById('account-form');
+    const status = document.getElementById('status');
+    const root = document.documentElement;
+
+    // ---- Dialog -------------------------------------------------------------
+    // showModal() makes the page inert, traps focus, closes on Esc and restores focus to the trigger.
+    openBtn.addEventListener('click', () => {
+      status.textContent = '';
+      dialog.showModal();
+    });
+    closeBtn.addEventListener('click', () => dialog.close());
+
+    // Light dismiss: native closedby="any" where supported, backdrop-click fallback otherwise.
+    if (!('closedBy' in HTMLDialogElement.prototype)) {
+      dialog.addEventListener('click', (e) => {
+        if (e.target !== dialog) return;
+        const r = dialog.getBoundingClientRect();
+        const inside = e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
+        if (!inside) dialog.close();
+      });
+    }
+
+    // ---- Theme (Light / Dark / System, persisted, synced across tabs) ------
+    const readTheme = () => {
+      try {
+        const t = localStorage.getItem('theme');
+        return t === 'light' || t === 'dark' ? t : 'system';
+      } catch { return 'system'; }
+    };
+    const paintTheme = (value) => {
+      root.style.colorScheme = value === 'system' ? '' : value;
+      for (const r of document.querySelectorAll('input[name="theme"]')) r.checked = r.value === value;
+    };
+    const applyTheme = (value) => {
+      try {
+        if (value === 'system') localStorage.removeItem('theme');
+        else localStorage.setItem('theme', value);
+      } catch {}
+      paintTheme(value);
+    };
+    paintTheme(readTheme());
+    for (const r of document.querySelectorAll('input[name="theme"]')) {
+      r.addEventListener('change', () => r.checked && applyTheme(r.value));
+    }
+    addEventListener('storage', (e) => {
+      if (e.key === 'theme' || e.key === null) paintTheme(readTheme());
+    });
+
+    // ---- Form validation ----------------------------------------------------
+    const email = document.getElementById('email');
+    const exp = document.getElementById('exp');
+    const inputs = [email, exp];
+
+    function expiryProblem(value) {
+      const m = /^(0[1-9]|1[0-2])\/(\d{2})$/.exec(value);
+      if (!m) return '';
+      const month = Number(m[1]);
+      const year = 2000 + Number(m[2]);
+      const now = new Date();
+      // Card is valid through the last day of its expiry month.
+      if (year < now.getFullYear() || (year === now.getFullYear() && month < now.getMonth() + 1)) {
+        return 'This card has expired. Check the date or use a different card.';
+      }
+      if (year > now.getFullYear() + 20) return 'That date is too far in the future. Check the year.';
+      return '';
+    }
+
+    function messageFor(input) {
+      const v = input.validity;
+      if (input === email) {
+        if (v.valueMissing) return 'Enter your email address.';
+        if (v.typeMismatch) return 'Enter an email with an @ and a domain, like name@example.com.';
+      }
+      if (input === exp) {
+        if (v.valueMissing) return 'Enter the expiry date shown on your card.';
+        if (v.patternMismatch) return 'Use MM/YY with a month from 01 to 12, like 04/28.';
+        if (v.customError) return input.validationMessage;
+      }
+      return input.validationMessage;
+    }
+
+    function sync(input) {
+      if (input === exp) exp.setCustomValidity(expiryProblem(exp.value.trim()));
+      const shown = input.matches(':user-invalid');
+      const error = document.getElementById(`${input.id}-error`);
+      input.setAttribute('aria-invalid', String(shown));
+      error.textContent = shown ? messageFor(input) : '';
+      error.hidden = !shown;
+    }
+
+    // Small helper: typing "0428" becomes "04/28".
+    exp.addEventListener('input', (e) => {
+      if (e.inputType && e.inputType.startsWith('delete')) return;
+      const digits = exp.value.replace(/\D/g, '').slice(0, 4);
+      if (/^\d{3,4}$/.test(digits) && !exp.value.includes('/')) exp.value = `${digits.slice(0, 2)}/${digits.slice(2)}`;
+      else if (/^\d{2}$/.test(exp.value)) exp.value += '/';
+    });
+
+    for (const input of inputs) {
+      input.addEventListener('input', () => { status.textContent = ''; sync(input); });
+      input.addEventListener('change', () => sync(input));
+    }
+    // A submit attempt makes :user-invalid apply to untouched fields too.
+    form.addEventListener('invalid', () => requestAnimationFrame(() => inputs.forEach(sync)), true);
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      exp.setCustomValidity(expiryProblem(exp.value.trim()));
+      if (!form.checkValidity()) {
+        requestAnimationFrame(() => {
+          inputs.forEach(sync);
+          inputs.find((i) => !i.validity.valid)?.focus();
+        });
+        return;
+      }
+      inputs.forEach(sync);
+      status.textContent = 'Settings saved.';
+    });
+  </script>
+</body>
+</html>
