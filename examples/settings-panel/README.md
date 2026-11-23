@@ -13,6 +13,19 @@ skill. The other read `modern-web-pitfalls` first. Nothing else differed.
 - Without the skill: [`without-skill.html`](without-skill.html)
 - With the skill: [`with-skill.html`](with-skill.html)
 
+## Screenshots
+
+Both pages after clicking **Save** on an empty form, rendered in headless Chrome at 900×760.
+
+| | Without skill | With skill |
+|---|---|---|
+| Light | ![Without skill, light](../../docs/screenshots/without-skill-light.png) | ![With skill, light](../../docs/screenshots/with-skill-light.png) |
+| Dark | ![Without skill, dark](../../docs/screenshots/without-skill-dark.png) | ![With skill, dark](../../docs/screenshots/with-skill-dark.png) |
+
+The visible differences are the **System** theme option, a ⚠ icon on errors (so they don't rely on
+colour alone) and a hint above the email field. The rest of the improvements are in the code and
+are listed below.
+
 ## Result: 6 / 17 → 17 / 17 checklist items
 
 | Check (from the skill's checklist) | Without | With |

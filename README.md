@@ -15,6 +15,27 @@ I gave two fresh agents the same prompt: *"a full-height hero, a Settings button
 animated modal, a light/dark theme switcher that persists, and an email + card-expiry form with
 validation."* One agent had the skill and one didn't.
 
+<table>
+  <tr>
+    <th width="50%">Without skill</th>
+    <th width="50%">With skill</th>
+  </tr>
+  <tr>
+    <td><img src="docs/screenshots/without-skill-light.png" alt="Settings dialog built without the skill, light theme: two-button Light/Dark toggle, errors shown in red text only"></td>
+    <td><img src="docs/screenshots/with-skill-light.png" alt="Settings dialog built with the skill, light theme: Light/Dark/System radio group, errors with a warning icon"></td>
+  </tr>
+  <tr>
+    <td><img src="docs/screenshots/without-skill-dark.png" alt="Settings dialog built without the skill, dark theme"></td>
+    <td><img src="docs/screenshots/with-skill-dark.png" alt="Settings dialog built with the skill, dark theme"></td>
+  </tr>
+</table>
+
+<sub>Both pages after clicking <b>Save</b> on an empty form, rendered in headless Chrome.</sub>
+
+The two pages look alike, and that's expected. The visible differences are a **System** theme
+option, a ⚠ icon on each error (a cue that doesn't rely on colour) and a hint above the email field.
+Most of the difference is in the code underneath:
+
 | | Without skill | With skill |
 |---|---|---|
 | Checklist items passed | **6 / 17** | **17 / 17** |
