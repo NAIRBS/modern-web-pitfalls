@@ -1,0 +1,7 @@
+{
+  "name": "modern-web-pitfalls",
+  "description": "Stops coding agents from making the 10 most common modern web-dev mistakes (a11y, UX, performance, security).",
+  "version": "1.0.0",
+  "license": "MIT",
+  "keywords": ["web", "frontend", "accessibility", "performance", "security", "css", "html"]
+}

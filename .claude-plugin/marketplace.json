@@ -1,0 +1,11 @@
+{
+  "name": "modern-web-pitfalls",
+  "owner": { "name": "NAIRBS" },
+  "plugins": [
+    {
+      "name": "modern-web-pitfalls",
+      "source": "./",
+      "description": "Stops coding agents from making the 10 most common modern web-dev mistakes (a11y, UX, performance, security)."
+    }
+  ]
+}
