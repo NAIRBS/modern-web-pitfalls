@@ -32,18 +32,32 @@ validation."* One agent had the skill and one didn't.
 
 <sub>Both pages after clicking <b>Save</b> on an empty form, rendered in headless Chrome.</sub>
 
-The two pages look alike, and that's expected. The visible differences are a **System** theme
-option, a ⚠ icon on each error (a cue that doesn't rely on colour) and a hint above the email field.
-Most of the difference is in the code underneath:
+The two pages look alike, and that's expected. Both work, and a quick review would pass either one.
+The differences show up for particular users, devices and situations:
 
-| | Without skill | With skill |
-|---|---|---|
-| Checklist items passed | **6 / 17** | **17 / 17** |
-| Open/close animation | class toggle + `animationend` + `setTimeout` fallback | pure CSS: `@starting-style` + `transition-behavior: allow-discrete` |
-| Reduced motion | `0.01ms` duration override | motion opted into with `prefers-reduced-motion: no-preference` |
-| Theme | binary toggle, no `<meta name="color-scheme">`, duplicated tokens | Light / Dark / **System**, `light-dark()`, meta tag, tabs synced |
-| Validation | JS `blur` handlers | `:user-invalid` + synced `aria-invalid` |
-| Light dismiss | manual backdrop hit-testing | `closedby="any"` with a fallback |
+### What you can see in the screenshots
+
+| Difference | Why it matters |
+|---|---|
+| **Light / Dark / System** instead of a Light/Dark toggle | Once someone picks "Light" in a two-way toggle, the site stops following their OS. If their phone switches to dark mode at night, they still get a bright page, and there's no way back short of clearing storage. A **System** option keeps the user in control. |
+| **⚠ icon** on each error, not red text alone | About 1 in 12 men have some colour-vision deficiency. If red is the only signal, some users can't tell which field is wrong. WCAG 1.4.1 (Use of Color) requires a second cue. |
+| **Hint above the field** ("We'll send receipts here…") | On phones, the keyboard and the autofill popup cover whatever sits *below* an input. Format rules have to be readable while the user types. The baseline puts its email hint only in the `placeholder`, which disappears as soon as typing starts. |
+
+### What you can't see, but users notice
+
+| | Without skill | With skill | Why it matters |
+|---|---|---|---|
+| Checklist items passed | **6 / 17** | **17 / 17** | |
+| Open/close animation | class toggle + `animationend` + `setTimeout` fallback | pure CSS: `@starting-style` + `transition-behavior: allow-discrete` | The JS version can get stuck half-closed when events race, for example a quick double-click or Esc during the animation. The CSS version is handled by the browser, with no timers to go wrong. |
+| Reduced motion | `0.01ms` duration override | motion opted into with `prefers-reduced-motion: no-preference` | Sliding and zooming can cause nausea or dizziness for people with vestibular disorders. With an opt-in, nobody gets motion unless their system allows it. The skill version also keeps the gentle fade. |
+| Dark-mode load | no `<meta name="color-scheme">` | meta tag + `light-dark()` | Without the meta tag, dark-mode users see a white flash on every page load, and the browser draws scrollbars and form controls in light mode. |
+| Other tabs | out of sync until reload | synced via the `storage` event | If you change the theme in one tab, every other open tab updates too. |
+| Validation | JS `blur` handlers | `:user-invalid` + synced `aria-invalid` | The browser only flags a field after the user has really interacted with it, and screen readers hear the same state that sighted users see. |
+| Light dismiss | manual backdrop hit-testing | `closedby="any"` with a fallback | Native behaviour covers edge cases (touch, pen, nested popovers) that hand-written hit-tests miss. |
+
+**The common thread:** each "with skill" choice gives the work to the browser, which already
+handles accessibility, input methods and performance. That means less code to maintain and fewer
+bugs, and it gets better as browsers improve.
 
 Full code and every check: [`examples/settings-panel/`](examples/settings-panel/). This was one
 prompt and one run, graded by hand, so treat it as a demo and not a benchmark.
@@ -65,6 +79,45 @@ prompt and one run, graded by hand, so treat it as a demo and not a benchmark.
 
 Every rule says what to avoid, what to write instead, and gives a short snippet. Newer APIs are
 always feature-detected with a working fallback.
+
+## How it compares
+
+Short version: **if you can install Google's official [Modern Web Guidance](https://github.com/GoogleChrome/modern-web-guidance),
+do.** It's far larger, it's maintained by browser vendors, and it has a real eval suite. This
+skill is the small, zero-dependency option. It's a checklist an agent can carry anywhere, and it
+can run alongside the official one.
+
+| Project | Maintained by | Focus | How it works | Size | Needs | License |
+|---|---|---|---|---|---|---|
+| **modern-web-pitfalls** (this) | Community (one person) | The 10 failure areas in Chrome's article: a11y, UX, perf, security | Plain-Markdown checklist, loaded when the agent writes front-end code, with 4 reference files read on demand | 1 skill, ~600 lines | Nothing. Works offline, and you can paste it into any rules file | MIT |
+| [Modern Web Guidance](https://github.com/GoogleChrome/modern-web-guidance) | Chrome, Edge, Firefox and MDN teams | Modern web-platform features across UX, CSS layout, perf, forms, a11y and built-in AI | The skill calls a CLI that searches 200+ curated guides and pulls the relevant one into context. It also has a `legacy-scan` command for existing code | Large, with browser-compat data | Node.js (`npx`) | Apache-2.0 |
+| [Vercel web-design-guidelines](https://github.com/vercel-labs/agent-skills) | Vercel | UI and interaction quality (Vercel's [Web Interface Guidelines](https://github.com/vercel-labs/web-interface-guidelines)) | An audit skill that fetches the latest rules at review time and reports issues as MUST/SHOULD/NEVER | Medium | Network access at review time | MIT (guidelines) |
+| [Web Quality Skills](https://github.com/addyosmani/web-quality-skills) | Addy Osmani (community) | Lighthouse audits: perf, Core Web Vitals, a11y, SEO, best practices | 6 skills built around Lighthouse categories and CWV thresholds | Medium | Nothing | MIT |
+| [frontend-design](https://github.com/anthropics/skills) | Anthropic | Visual design quality: distinctive, non-generic UI | Design-direction guidance for building interfaces | Small | Nothing | See repo |
+
+### Where each one fits
+
+- **Modern Web Guidance:** the most thorough and authoritative choice, covering all 10 of these
+  areas and much more. The trade-offs are a Node/CLI dependency, a tool call for each lookup, and a
+  bigger footprint.
+- **modern-web-pitfalls:** use it when you want one short list the agent always sees, with no
+  tooling. That suits locked-down environments, agents without shell access (such as the Claude app
+  and Cowork), or pasting into `AGENTS.md`/`.cursorrules`. It's also easy to read and fork.
+- **Vercel / Web Quality Skills:** these come at the problem from other angles, interface polish and
+  Lighthouse scores, and they're mainly for **reviewing** finished code. They pair well with either
+  of the above.
+- **frontend-design:** this one is about how a page *looks*, not which platform APIs it uses. It's
+  complementary, not a competitor.
+
+### Honest limitations of this skill
+
+- It covers **10 areas**, not the whole platform. If your problem isn't on the checklist, this skill
+  won't help.
+- It has **no browser-compat database**. It relies on feature detection and fallbacks instead.
+- So far, the only evidence is **one before/after demo**, not an eval suite.
+- One person maintains it. Corrections are very welcome.
+
+<sub>Comparison as of November 2026, based on each project's public README. Features and scope change, so check each repo for the current details.</sub>
 
 ## Install
 
