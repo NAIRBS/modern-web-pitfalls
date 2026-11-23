@@ -32,14 +32,14 @@ always feature-detected with a working fallback.
 ### Claude Code: as a plugin
 
 ```
-/plugin marketplace add OWNER/modern-web-pitfalls
+/plugin marketplace add NAIRBS/modern-web-pitfalls
 /plugin install modern-web-pitfalls@modern-web-pitfalls
 ```
 
 ### Claude Code: as a personal skill
 
 ```bash
-git clone https://github.com/OWNER/modern-web-pitfalls.git
+git clone https://github.com/NAIRBS/modern-web-pitfalls.git
 cp -r modern-web-pitfalls/skills/modern-web-pitfalls ~/.claude/skills/
 ```
 
