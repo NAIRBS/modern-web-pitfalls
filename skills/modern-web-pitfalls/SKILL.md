@@ -1,6 +1,6 @@
 ---
 name: modern-web-pitfalls
-description: Corrects the ten web-dev mistakes coding agents make most often (focus/inert handling, reduced motion, form validation, swipe gestures, dialogs/popovers, dark mode, INP responsiveness, layout shift, DOM XSS/CSP, passkeys). Use whenever writing or reviewing HTML, CSS or front-end JavaScript - especially modals, popovers, carousels, swipe UIs, forms, theming, data grids, view transitions, A/B test snippets, HTML sanitization, CSP headers or WebAuthn/passkey flows.
+description: Corrects the ten web-dev mistakes coding agents make most often (focus/inert handling, reduced motion, form validation, swipe gestures, dialogs/popovers, dark mode, INP responsiveness, layout shift, DOM XSS/CSP, passkeys) and enforces baseline quality (contrast in both themes, non-colour cues, specific announced errors, target sizes, forced colours). Use whenever writing or reviewing HTML, CSS or front-end JavaScript - especially modals, popovers, carousels, swipe UIs, forms, theming, data grids, view transitions, A/B test snippets, HTML sanitization, CSP headers or WebAuthn/passkey flows.
 ---
 
 # Modern Web Pitfalls
@@ -12,24 +12,37 @@ This skill lists the patterns to avoid and what to write instead.
 ## How to use this skill
 
 1. Before writing UI code, scan the **checklist** below for the features you are about to build.
-2. For each feature, open the matching reference file and follow its rules and snippets:
+2. **Always** read [references/baseline-quality.md](references/baseline-quality.md) (contrast,
+   non-colour cues, forms, targets, forced colours, CSP). It applies to every page.
+3. For each feature, open the matching reference file and follow its rules and snippets:
    - Accessibility (focus, reduced motion, forms): [references/accessibility.md](references/accessibility.md)
    - UX (gestures, dialogs/popovers, dark mode): [references/ux.md](references/ux.md)
    - Performance (INP, CLS, flicker): [references/performance.md](references/performance.md)
    - Security (XSS, sanitization, CSP, passkeys): [references/security.md](references/security.md)
-3. **Progressive enhancement is the rule.** Newer APIs (`setHTML()`, `scheduler.yield()`,
+4. **Progressive enhancement is the rule.** Newer APIs (`setHTML()`, `scheduler.yield()`,
    scroll-state queries, `blocking="render"`, `contentvisibilityautostatechange`, WebAuthn JSON
    helpers) must be feature-detected, with a fallback that still works.
-4. When reviewing existing code, flag every "Don't" pattern you find and propose the "Do" replacement.
+5. Before finishing, run the **final self-check** at the end of baseline-quality.md.
+6. When reviewing existing code, flag every "Don't" pattern you find and propose the "Do" replacement.
 
 ## Checklist
+
+### Baseline quality (every page)
+- [ ] Text ≥ 4.5:1, and **input borders and other UI boundaries ≥ 3:1**, checked in light **and** dark.
+- [ ] Errors, selected states and required fields have a non-colour cue (icon + "Error:" text, weight, shape).
+- [ ] One specific message per failure (empty / format / range / expired) via the Constraint Validation API.
+- [ ] A failed submit moves focus to the first invalid field, errors are announced, and the error slot doesn't shift layout.
+- [ ] Correct `type`/`inputmode`/`autocomplete`, real `<label for>`, required fields marked visibly.
+- [ ] Targets ≥ 24px (44px for primary/touch), visible `:focus-visible`, no click handlers on non-buttons.
+- [ ] `forced-colors: active` keeps selected and invalid states visible.
+- [ ] CSP proposed (verified hashes, or a commented recommendation).
+- [ ] Overlay backdrop-click checks the bounding box, so clicks on the dialog's own padding don't close it.
 
 ### Accessibility
 - [ ] Opening a view moves focus into it; closing it returns focus to the trigger.
 - [ ] Modals use `<dialog>` + `showModal()` (or `inert` on the background), not JS focus traps + `aria-modal`.
 - [ ] Toolbars, tab lists, grids and menus use **roving tabindex** (one tab stop per widget).
 - [ ] Custom `:focus-visible` outlines have ≥ 3:1 contrast against what's next to them.
-- [ ] Input borders and other UI component boundaries have ≥ 3:1 contrast against the background in **both** themes (WCAG 1.4.11). Faint 1px grey borders usually fail.
 - [ ] `scroll-behavior: smooth`, scroll-driven animations and `@view-transition` are gated behind `prefers-reduced-motion: no-preference`.
 - [ ] Reduced-motion carousels remove the movement (`transform`), not only the duration.
 - [ ] No blanket `* { transition-duration: 0.01ms }` reset.
